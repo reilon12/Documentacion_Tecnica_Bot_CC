@@ -1,48 +1,48 @@
-# 🤖 Bot CC (CUECCA) - Documentación Técnica 
+# 🤖 Bot CC — Sistema de Atención Automática y Derivación (CUECCA)
 
-**Sistema Procedural de Atención al Cliente, Consultas y Derivación de Reclamos**
+Este repositorio contiene la arquitectura, flujos de automatización y documentación técnica para **Bot CC**, la solución conversacional procedural diseñada para la Cooperativa CUECCA (Castelli Ltda.).
 
-> **Proyecto Integrador de Práctica Profesional III**  
-> **Institución / Cliente:** CUECCA (Cooperativa de Usuarios de Electricidad y de Consumo de Castelli Ltda.)
-
----
-
-## 📌 1. Visión General y Modelo de Negocio
-
-El **Bot CC** es una solución de software procedural diseñada para optimizar y automatizar el canal de atención al cliente de la Cooperativa CUECCA vía WhatsApp (integrado con Chatwoot) y Web. El sistema permite responder consultas frecuentes, consultar saldos y deudas por período, brindar información de requisitos para trámites y derivar eficientemente reclamos complejos hacia los sectores correspondientes (*Caja, Reclamos, Internet, Cloacas*).
-
-### Objetivos Principales
-- **Reducción de carga operativa:** Automatizar consultas masivas repetitivas (monto adeudado, fechas de vencimiento, requisitos de alta, medios de pago).
-- **Precisión y Trazabilidad:** Consultar la base de datos MySQL mediante filtros estrictos (*DNI, Nombre del Titular y Domicilio*).
-- **Integración Procedural:** Derivar reclamos y solicitudes técnicas a los operadores humanos en Chatwoot sin intervención de IA generativa no controlada.
+El sistema automatiza la consulta de cuenta corriente/deuda y el registro de reclamos técnicos para los servicios de Energía, Agua, Cloacas e Internet, derivando a atención humana únicamente cuando se requiere.
 
 ---
 
-## 🛠️ 2. Stack Tecnológico e Integraciones
+## 🛠️ Stack Tecnológico
 
-| Componente | Tecnología / Herramienta | Descripción / Rol |
-| :--- | :--- | :--- |
-| **Motor Conversacional** | TypeBot | Construcción del flujo procedural y árbol de decisiones. |
-| **Atención Omnicanal** | Chatwoot + WhatsApp API | Gestión de chats, canal oficial y derivación a operadores humanos. |
-| **Middleware / Automatización** | n8n | Orquestación de flujos, validación de datos y llamados HTTP/APIs. |
-| **Base de Datos** | MySQL / SQL Server | Almacenamiento y lectura de saldos, períodos, tarifas y usuarios. |
+* **Front-end Omnicanal:** [Chatwoot](https://www.chatwoot.com/)
+* **Motor Conversacional:** [TypeBot](https://typebot.io/)
+* **Middleware / Orquestador:** [n8n](https://n8n.io/)
+* **Base de Datos:** MySQL / SQL Server
 
 ---
 
-## 🏗️ 3. Esquema General de Arquitectura
+## 📚 Documentación del Proyecto
+
+Toda la documentación detallada del proyecto se encuentra organizada dentro de la carpeta [`docs/`](./docs/):
+
+1. [**`01_manual_usuario_operadores.md`**](./docs/01_manual_usuario_operadores.md): Guía operativa para el personal de atención y guardia en Chatwoot (gestión de etiquetas, derivaciones y estados).
+2. [**`02_matriz_casos_de_uso.md`**](./docs/02_matriz_casos_de_uso.md): Mapeo completo de árboles de decisión, caminos principales, excepciones y tags asignados.
+3. [**`03_diseno_mensajes_e_interfaz.md`**](./docs/03_diseno_mensajes_e_interfaz.md): Textos exactos, tono de comunicación y estructura visual de las opciones presentadas en TypeBot.
+4. [**`04_arquitectura_e_integraciones.md`**](./docs/04_arquitectura_e_integraciones.md): Esquema de arquitectura (Mermaid), modelo conceptual de la base de datos MySQL y mapa de integración procedural entre TypeBot, n8n y Chatwoot.
+
+---
+
+## 🚀 Estructura del Repositorio
 
 ```text
-[ Usuario (WhatsApp / Web) ]
-           │
-           ▼
-     [ Chatwoot ]
-           │
-           ▼
-     [ TypeBot ] (Lógica Procedural / Árbol de Respuestas)
-           │
-           ▼
-       [ n8n ] (Middleware)
-      /       \
-     ▼         ▼
-[ Base de Datos MySQL ]   [ Operador Humano (Chatwoot) ]
-(Saldos, Periodos, Tarifas)  (Derivación de reclamos)
+.
+├── docs/
+│   ├── 01_manual_usuario_operadores.md
+│   ├── 02_matriz_casos_de_uso.md
+│   ├── 03_diseno_mensajes_e_interfaz.md
+│   └── 04_arquitectura_e_integraciones.md
+├── workflows/         # Exportaciones JSON de los flujos de n8n
+├── typebot/           # Exportaciones JSON de los flujos de TypeBot
+└── README.md
+```
+
+---
+
+## 🛡️ Reglas de Seguridad y Trazabilidad
+
+* **Solo Lectura:** Las consultas financieras y de cuenta corriente ejecutadas por n8n operan bajo permisos estricta y exclusivamente de lectura.
+* **Trazabilidad:** Todo reclamo técnico genera un número de ticket con registro temporal único en la base de datos para seguimiento de la guardia técnica.
