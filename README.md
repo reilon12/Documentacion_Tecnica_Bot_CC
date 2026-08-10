@@ -19,10 +19,10 @@ El sistema automatiza la consulta de cuenta corriente/deuda y el registro de rec
 
 Toda la documentación detallada del proyecto se encuentra organizada dentro de la carpeta [`docs/`](./docs/):
 
-1. [**`01_requerimientos_y_planificacion.md`**](./docs/01_requerimientos_y_planificacion.md): Guía operativa para el personal de atención y guardia en Chatwoot (gestión de etiquetas, derivaciones y estados).
-2. [**`02_especificacion_funcional_y_casos.md`**](./docs/02_especificacion_funcional_y_casos.md): Mapeo completo de árboles de decisión, caminos principales, excepciones y tags asignados.
-3. [**`03_manual_despliegue_y_mantenimiento.md`**](./docs/03_manual_despliegue_y_mantenimiento.md): Textos exactos, tono de comunicación y estructura visual de las opciones presentadas en TypeBot.
-4. [**`04_arquitectura_e_integraciones.md`**](./docs/04_arquitectura_e_integraciones.md): Esquema de arquitectura (Mermaid), modelo conceptual de la base de datos MySQL y mapa de integración procedural entre TypeBot, n8n y Chatwoot.
+1. [**`01_requerimientos_y_planificacion.md`**](./docs/01_requerimientos_y_planificacion.md): Alcance del proyecto, objetivos de automatización, requerimientos funcionales/no funcionales y planificación de entregables.
+2. [**`02_especificacion_funcional_y_casos.md`**](./docs/02_especificacion_funcional_y_casos.md): Mapeo procedural de flujos, matriz de casos de uso (Consulta de Deuda y Reclamos), árboles de decisión y reglas de derivación.
+3. [**`03_manual_despliegue_y_mantenimiento.md`**](./docs/03_manual_despliegue_y_mantenimiento.md): Guía de instalación, configuración de variables de entorno, importación de flujos (n8n/TypeBot) y protocolos de mantenimiento.
+4. [**`04_arquitectura_e_integraciones.md`**](./docs/04_arquitectura_e_integraciones.md): Esquema de arquitectura (Mermaid), modelo conceptual de base de datos MySQL y mapa de integraciones entre TypeBot, n8n y Chatwoot.
 
 ---
 
@@ -32,7 +32,7 @@ Toda la documentación detallada del proyecto se encuentra organizada dentro de 
 .
 ├── docs/
 │   ├── 01_requerimientos_y_planificacion.md
-│   ├── 02_especificacion_funcinal_y_casos.md
+│   ├── 02_especificacion_funcional_y_casos.md
 │   ├── 03_manual_despliegue_y_mantenimiento.md
 │   └── 04_arquitectura_e_integraciones.md
 ├── workflows/         # Exportaciones JSON de los flujos de n8n
