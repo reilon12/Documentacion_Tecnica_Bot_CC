@@ -3,7 +3,7 @@
 
 
 ### Módulo General
-![modulo_general](Diagrama_general_2.png)
+![modulo_general](Diagrama_general.png)
 ### Módulo Caja
 ### Módulo Trámites y Reclamos
 ### Módulo Contratacion de Servicios
