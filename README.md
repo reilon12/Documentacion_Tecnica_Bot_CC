@@ -51,7 +51,11 @@ El bot identifica al socio y le permite consultar su deuda, facturas y consumos;
 
 ### Diagramas
 
-- [Casos de uso](diagramas/casos_de_uso/README.md) (diseño de agosto de 2026)
+Diseño de agosto de 2026, con sus fuentes `.drawio`. El flujo implementado está en los diagramas Mermaid de cada módulo.
+
+- [Casos de uso](diagramas/casos_de_uso/README.md): general, Caja, Reclamos, Contrataciones y Excepciones
+- [Flujo](diagramas/flujo/README.md): módulos y subflujos de Facturación
+- [Secuencia](diagramas/secuencia/README.md): deuda, contrataciones, reclamo y derivación a Chatwoot
 
 ---
 
@@ -83,8 +87,10 @@ El bot identifica al socio y le permite consultar su deuda, facturas y consumos;
 ├── estilos/
 │   ├── typebot-tema-cuecca.css      # Custom CSS del tema
 │   └── generar_colores_botones.py   # Regenera los colores de los submenús
-├── diagramas/
-│   └── casos_de_uso/
+├── diagramas/                       # Diseño de agosto (.drawio + imagen)
+│   ├── casos_de_uso/
+│   ├── flujo/
+│   └── secuencia/
 └── exports/
     └── limpios/       # Exports de n8n y Typebot revisados (sin credenciales ni datos reales)
 ```

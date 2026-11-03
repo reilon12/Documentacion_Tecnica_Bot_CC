@@ -1,0 +1,203 @@
+<mxfile host="Electron" modified="2026-08-24T03:38:50.796Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.2.5 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="CWh05_YyupOfhWrjTVZo" version="24.2.5" type="device">
+  <diagram name="Página-1" id="BqEuO6vVQZE_89WZtIoI">
+    <mxGraphModel dx="1687" dy="2153" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-6" value="Socio" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="440" y="-480" width="95" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-7" value="TypeBot" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="790" y="-480" width="95" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-11" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="45fnLwDkpFyOmX1tMXj2-7">
+          <mxGeometry x="42.5" y="60" width="10" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-8" value="n8n" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="-480" width="95" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-12" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="45fnLwDkpFyOmX1tMXj2-8">
+          <mxGeometry x="42.5" y="60" width="10" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-34" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="45fnLwDkpFyOmX1tMXj2-8">
+          <mxGeometry x="42.5" y="430" width="10" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-9" value="MySQL" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="-480" width="95" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-13" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="45fnLwDkpFyOmX1tMXj2-9">
+          <mxGeometry x="42.5" y="60" width="10" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-10" value="SIGO" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="-480" width="95" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-33" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="45fnLwDkpFyOmX1tMXj2-10">
+          <mxGeometry x="42.5" y="360" width="10" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-14" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="487" y="-410" as="sourcePoint" />
+            <mxPoint x="837" y="-410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-15" value="Selecciona &quot;Reclamo Tecnico&quot;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-14">
+          <mxGeometry x="-0.0114" y="-3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-16" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1" source="45fnLwDkpFyOmX1tMXj2-7" target="45fnLwDkpFyOmX1tMXj2-6">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="687" y="-360" as="sourcePoint" />
+            <mxPoint x="510" y="-360" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="670" y="-380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-18" value="Solicita DNI y Tipo de Servicio&amp;nbsp;&lt;div&gt;Energia/Agua/Internet&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-16">
+          <mxGeometry x="0.0743" y="3" relative="1" as="geometry">
+            <mxPoint x="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-19" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="487" y="-330" as="sourcePoint" />
+            <mxPoint x="832.5" y="-330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-20" value="Ingresa DNI +&lt;div&gt;Selecciona Servicio +&lt;/div&gt;&lt;div&gt;Describe la Falla&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-19">
+          <mxGeometry x="-0.0114" y="-3" relative="1" as="geometry">
+            <mxPoint x="2" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-21" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;entryX=0.463;entryY=0.313;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="45fnLwDkpFyOmX1tMXj2-7" target="45fnLwDkpFyOmX1tMXj2-8">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="830" y="-310" as="sourcePoint" />
+            <mxPoint x="1175.5" y="-310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-23" value="POST/crea_reclamo {dni,servicio,descripcion}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-21">
+          <mxGeometry x="0.026" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-24" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1" source="45fnLwDkpFyOmX1tMXj2-8">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1210" y="-290" as="sourcePoint" />
+            <mxPoint x="1520" y="-290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-26" value="SELECT*FROM USU WHERE dni = :dni" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-24">
+          <mxGeometry x="-0.045" y="-1" relative="1" as="geometry">
+            <mxPoint x="14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-27" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1520" y="-260" as="sourcePoint" />
+            <mxPoint x="1190" y="-260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-28" value="return socio_datos (idsocio,domicilio,idservicio)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-27">
+          <mxGeometry x="0.1091" y="-1" relative="1" as="geometry">
+            <mxPoint x="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-29" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1192.5" y="-230" as="sourcePoint" />
+            <mxPoint x="1517" y="-230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-30" value="INSERT INTO RECLAMOS (idsocio...) VALUES (..)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-29">
+          <mxGeometry x="-0.045" y="-1" relative="1" as="geometry">
+            <mxPoint x="14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-31" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1520" y="-200" as="sourcePoint" />
+            <mxPoint x="1190" y="-200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-32" value="return id_reclamo_local" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-31">
+          <mxGeometry x="0.1091" y="-1" relative="1" as="geometry">
+            <mxPoint x="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-35" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1" target="45fnLwDkpFyOmX1tMXj2-10">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1197" y="-40" as="sourcePoint" />
+            <mxPoint x="1530" y="-40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-37" value="POST api/v1/tickets/create {id_socio,domicilio,falla}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-35">
+          <mxGeometry x="-0.0921" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-38" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1827" y="-10" as="sourcePoint" />
+            <mxPoint x="1187" y="-10" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-39" value="RESPONSE 201 Created {ID_reclamo &quot;5327&quot;}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-38">
+          <mxGeometry x="0.1091" y="-1" relative="1" as="geometry">
+            <mxPoint x="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-40" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1190" y="-170" as="sourcePoint" />
+            <mxPoint x="1514.5" y="-170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-41" value="UPDATE reclamos SET ticket = &#39;5327&#39;&amp;nbsp;&lt;div&gt;where id = id_Reclamo&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-40">
+          <mxGeometry x="-0.045" y="-1" relative="1" as="geometry">
+            <mxPoint x="14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-42" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1520" y="-130" as="sourcePoint" />
+            <mxPoint x="1190" y="-130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-43" value="return OK" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-42">
+          <mxGeometry x="0.1091" y="-1" relative="1" as="geometry">
+            <mxPoint x="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-44" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1" source="45fnLwDkpFyOmX1tMXj2-8">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="1170" y="-110" as="sourcePoint" />
+            <mxPoint x="840" y="-110" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-46" value="200 ok {ticket_sigo: &quot;5327&quot;}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-44">
+          <mxGeometry x="0.0317" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-47" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;rounded=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="830" y="-70" as="sourcePoint" />
+            <mxPoint x="480" y="-70" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="663" y="-70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-48" value="Muestra Confirmacion&lt;div&gt;&quot;RECLAMO REGISTRADO CON EXITO&lt;/div&gt;&lt;div&gt;N° TICKET: 5327&quot;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="45fnLwDkpFyOmX1tMXj2-47">
+          <mxGeometry x="0.0743" y="3" relative="1" as="geometry">
+            <mxPoint x="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="45fnLwDkpFyOmX1tMXj2-49" value="sd&lt;div&gt;Crear&lt;/div&gt;&lt;div&gt;Reclamo&lt;/div&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;strokeWidth=3;width=90;height=50;" vertex="1" parent="1">
+          <mxGeometry x="420" y="-540" width="1520" height="620" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
