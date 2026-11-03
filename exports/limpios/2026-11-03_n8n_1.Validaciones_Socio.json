@@ -1,0 +1,402 @@
+{
+  "name": "1.Validaciones_Socio",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vincular_socio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        128
+      ],
+      "id": "17bf4457-2cb2-4446-8686-c9f97a08e4c5",
+      "name": "Vincular_Socio",
+      "webhookId": "023bf835-d112-466c-9b47-984db7b17cb8"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Coincidencias entre Celular y Numero de Cuenta\n### Desde TypeBot se dara la bienvenida, se buscara coincidencia con el numero que esta hablando y en caso de encontrarlo, se notificará.\n### Se realiza la llamada al Webhook, se consulta en SQL Server y se da la respuesta en Respond to Webhook.",
+        "height": 336,
+        "width": 1088
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -384
+      ],
+      "id": "da6c6107-8f5e-49f9-a92d-c90999d13d34",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 1.1 - Validación de Usuario en caso de no Encontrar Coincidencias con el celular.\n### No se encontró una validación en el webhook_celular, después de devolver vacio\n### Se validan el DNI, Numero de Cuenta y Celular.",
+        "height": 320,
+        "width": 1088,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -32
+      ],
+      "id": "27404b52-12a7-4472-a32d-900b10ba564e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "identificar_socio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        -224
+      ],
+      "id": "cc66b6e0-d7d0-44e1-818f-6506af993cc0",
+      "name": "Webhook_celular",
+      "webhookId": "6c2ca8b3-deed-4beb-9956-d3ea0f13b0dd"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    'Energía' AS servicio,\n    Codigo,\n    Socio,\n    nombre,\n    dni,\n    domicilio,\n    telefonocel\nFROM USUENER\nWHERE Activo = 1\n  AND RIGHT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefonocel, ' ', ''), '-', ''), '(', ''), ')', ''), '+', ''), 10) = RIGHT('{{ $json.body.telefono }}', 10)\n\nUNION ALL\n\nSELECT \n    'Internet' AS servicio,\n    Codigo,\n    Socio,\n    nombre,\n    dni,\n    domicilio,\n    telefonocel\nFROM USUINTE\nWHERE Activo = 1\n  AND RIGHT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefonocel, ' ', ''), '-', ''), '(', ''), ')', ''), '+', ''), 10) = RIGHT('{{ $json.body.telefono }}', 10)\n\nUNION ALL\n\nSELECT \n    'Agua' AS servicio,\n    Codigo,\n    Socio,\n    nombre,\n    dni,\n    domicilio,\n    telefonocel\nFROM USUAGUA\nWHERE Activo = 1\n  AND RIGHT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefonocel, ' ', ''), '-', ''), '(', ''), ')', ''), '+', ''), 10) = RIGHT('{{ $json.body.telefono }}', 10)\n\nORDER BY Socio ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        -224
+      ],
+      "id": "ffeed808-702b-4131-8d11-d1dabe8aa39b",
+      "name": "SQL_validacion_celular",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        704,
+        -224
+      ],
+      "id": "46a4594e-7f7c-4942-bee8-c632f320b1cc",
+      "name": "Respuesta_celular"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        736,
+        128
+      ],
+      "id": "9d22afee-d9ec-4345-8adf-15dc28fec381",
+      "name": "Respuesta_vinculacion_socio"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT\n    UPPER(TRIM(domicilio)) AS domicilio,\n    'energia' AS tipo_servicio\nFROM USUENER \nWHERE Socio = '{{ $json.body.cuenta }}' \n  AND dni = '{{ $json.body.dni }}' \n  AND Activo = 1 \n  AND codigo = '{{ $json.body.codigo}}'\n  AND UPPER(domicilio) LIKE UPPER('%{{ $json.body.domicilio_buscado }}%')\n\nUNION\n\nSELECT DISTINCT\n    UPPER(TRIM(domicilio)) AS domicilio,\n    'internet' AS tipo_servicio\nFROM USUINTE \nWHERE Socio = '{{ $json.body.cuenta }}' \n  AND dni = '{{ $json.body.dni }}'\n  AND codigo = '{{ $json.body.codigo}}'\n  AND Activo = 1 \n  AND UPPER(domicilio) LIKE UPPER('%{{ $json.body.domicilio_buscado }}%')\n\nUNION\n\nSELECT DISTINCT\n    UPPER(TRIM(domicilio)) AS domicilio,\n    'agua' AS tipo_servicio\nFROM USUAGUA \nWHERE Socio = '{{ $json.body.cuenta }}' \n  AND dni = '{{ $json.body.dni }}' \n  AND codigo = '{{ $json.body.codigo}}'\n  AND Activo = 1 \n  AND UPPER(domicilio) LIKE UPPER('%{{ $json.body.domicilio_buscado }}%');"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        448
+      ],
+      "id": "c1c3bbb6-c233-4eb9-b6db-998bdb86187c",
+      "name": "filtro_domicilio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "filtrar_domicilio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        448
+      ],
+      "id": "2e889c6e-0d45-49f1-9581-1d76669927f0",
+      "name": "webhook_filtrar_domicilio",
+      "webhookId": "8649bd99-72f9-413a-93b3-6ca3f03af152"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        736,
+        448
+      ],
+      "id": "12340d18-6751-45b9-b2a3-a440f6225609",
+      "name": "respuesta_filtro_domicilio"
+    },
+    {
+      "parameters": {
+        "content": "## 1.2 Usuarios con mas de 8 Domicilios \n### Para evitar incomodidad en cuanto a la cantidad de domicilios mostrados en pantalla, \n### si se superan los 8 domicilios, se hara una busqueda especifica y posteriormente se valida, caso contrario, se muestran en pantalla.",
+        "height": 320,
+        "width": 1088,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "d98f83b7-eb76-41e8-90ae-2acaa8e4b94c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items.length || !items[0].json || Object.keys(items[0].json).length === 0 || !items[0].json.domicilio) {\n  return [{\n    json: {\n      encontrado: false,\n      user_domicilios: [],\n      user_domicilios_lista: []\n    }\n  }];\n}\n\nconst mapaDomicilios = {};\n\nitems.forEach(item => {\n  if (item.json && item.json.domicilio) {\n    const domLimpio = String(item.json.domicilio).trim().toUpperCase();\n    const servicio = item.json.tipo_servicio ? String(item.json.tipo_servicio).trim().toUpperCase() : null;\n\n    if (!mapaDomicilios[domLimpio]) {\n      mapaDomicilios[domLimpio] = {\n        domicilio: domLimpio,\n        servicios: []\n      };\n    }\n\n    if (servicio && !mapaDomicilios[domLimpio].servicios.includes(servicio)) {\n      mapaDomicilios[domLimpio].servicios.push(servicio);\n    }\n  }\n});\n\nconst listaDomiciliosObjetos = [];\nconst listaDomiciliosTextos = [];\n\nObject.values(mapaDomicilios).forEach(item => {\n  const detalle = item.servicios.length > 0 ? item.servicios.join(\", \") : \"\";\n  const labelVisual = detalle ? `${item.domicilio} (${detalle})` : item.domicilio;\n\n  listaDomiciliosObjetos.push({\n    label: labelVisual,\n    value: item.domicilio,\n    domicilio: item.domicilio\n  });\n\n  listaDomiciliosTextos.push(labelVisual);\n});\n\nreturn [{\n  json: {\n    encontrado: true,\n    user_domicilios: listaDomiciliosTextos,\n    user_domicilios_lista: listaDomiciliosObjetos,\n    cantidad_resultados: listaDomiciliosTextos.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        448
+      ],
+      "id": "975be250-c81e-413f-92b7-d28a47ba907f",
+      "name": "mapeo_lista_domicilio"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT\n    Codigo,\n    Socio,\n    nombre,\n    dni,\n    email,\n    medidor,\n    tipo_servicio,\n    UPPER(TRIM(domicilio)) AS domicilio\nFROM (\n    SELECT Codigo, Socio, nombre, dni, email, medidor, 'energia' AS tipo_servicio, domicilio \n    FROM USUENER \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}' \n      AND Activo = 1 \n\n    UNION\n\n    SELECT Codigo, Socio, nombre, dni, email, NULL AS medidor, 'internet' AS tipo_servicio, domicilio \n    FROM USUINTE \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}' \n      AND Activo = 1\n\n    UNION\n\n    SELECT Codigo, Socio, nombre, dni, email, medidor, 'agua' AS tipo_servicio, domicilio \n    FROM USUAGUA \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}' \n      AND Activo = 1\n) AS ListaDomicilios\nWHERE domicilio IS NOT NULL \n  AND TRIM(domicilio) <> ''\nORDER BY domicilio ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        128
+      ],
+      "id": "8b061e2a-81bc-4480-8bb3-209efa6100f3",
+      "name": "busqueda_socio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 1. Validamos si no hay resultados\nif (!items.length || !items[0].json || Object.keys(items[0].json).length === 0) {\n  return [{ json: { valido: false } }];\n}\n\n// 2. Extraemos nombre y email\nconst primerRegistroConNombre = items.find(item => item.json && item.json.nombre);\nconst nombreAsociado = primerRegistroConNombre ? primerRegistroConNombre.json.nombre : '';\n\nconst primerRegistroConEmail = items.find(item => item.json && item.json.email);\nconst emailAsociado = primerRegistroConEmail ? primerRegistroConEmail.json.email : '';\n\n// 3. Agrupamos por Domicilio Único\nconst mapaDomicilios = {};\n\nitems.forEach(item => {\n  if (item.json && item.json.domicilio) {\n    const domLimpio = String(item.json.domicilio).trim().toUpperCase();\n    const codigoUser = item.json.Codigo;\n    const servicio = item.json.tipo_servicio ? String(item.json.tipo_servicio).trim().toUpperCase() : null;\n\n    if (!mapaDomicilios[domLimpio]) {\n      mapaDomicilios[domLimpio] = {\n        domicilio: domLimpio,\n        codigos: [],\n        codigosInternet: [],\n        servicios: []\n      };\n    }\n\n    if (codigoUser && !mapaDomicilios[domLimpio].codigos.includes(codigoUser)) {\n      mapaDomicilios[domLimpio].codigos.push(codigoUser);\n    }\n\n    // Capturamos de forma específica el código si corresponde al servicio de internet\n    if (servicio === 'INTERNET' && codigoUser) {\n      if (!mapaDomicilios[domLimpio].codigosInternet.includes(codigoUser)) {\n        mapaDomicilios[domLimpio].codigosInternet.push(codigoUser);\n      }\n    }\n\n    if (servicio && !mapaDomicilios[domLimpio].servicios.includes(servicio)) {\n      mapaDomicilios[domLimpio].servicios.push(servicio);\n    }\n  }\n});\n\n// 4. Armamos la estructura de salida para los botones de Typebot\nconst listaDomiciliosObjetos = [];\nconst listaDomiciliosTextos = [];\n\nObject.values(mapaDomicilios).forEach(item => {\n  let detalle = \"\";\n  if (item.servicios.length > 0) {\n    detalle = item.servicios.join(\", \");\n  }\n\n  const labelVisual = detalle ? item.domicilio + \" (\" + detalle + \")\" : item.domicilio;\n\n  // Tomamos estrictamente el código de internet si existe, caso contrario el primero disponible\n  const codigoPreciso = item.codigosInternet.length > 0 ? item.codigosInternet[0] : (item.codigos[0] || null);\n\n  listaDomiciliosObjetos.push({\n    label: labelVisual,\n    value: item.domicilio,\n    domicilio: item.domicilio,\n    codigo: codigoPreciso\n  });\n\n  listaDomiciliosTextos.push(labelVisual);\n});\n\n// 5. Medidores y códigos específicos\nconst medidorEnergia = items.find(item => item.json?.tipo_servicio === 'energia' && item.json?.medidor)?.json.medidor || null;\nconst medidorAgua = items.find(item => item.json?.tipo_servicio === 'agua' && item.json?.medidor)?.json.medidor || null;\n\n// Buscamos estrictamente el primer código de internet disponible para el usuario, sino el primero general\nconst registroInternet = items.find(item => item.json?.tipo_servicio === 'internet');\nconst codigoPrincipal = registroInternet ? registroInternet.json.Codigo : (items.find(item => item.json && item.json.Codigo)?.json.Codigo || null);\n\nreturn [{\n  json: {\n    valido: true,\n    user_nombre: nombreAsociado,\n    user_email: emailAsociado,\n    user_codigo: codigoPrincipal, // <--- Ahora tomará el 6 en lugar del 14\n    user_domicilios: listaDomiciliosTextos,\n    user_domicilios_lista: listaDomiciliosObjetos,\n    cantidad_domicilios: listaDomiciliosTextos.length,\n    medidor_energia: medidorEnergia,\n    medidor_agua: medidorAgua\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        128
+      ],
+      "id": "df2eefe7-8030-42f5-9351-a23015110a0c",
+      "name": "mapeo_datos_socio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"telefono\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {\"telefono\": 10};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -344
+      ],
+      "id": "79801d81-f2a7-4519-9112-9b8ce04f4eeb",
+      "name": "Validar_Entrada_celular"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"cuenta\", \"dni\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        8
+      ],
+      "id": "8163d0d4-5f16-4b91-9de0-c6860f0774b6",
+      "name": "Validar_Entrada_vincular"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"cuenta\", \"dni\", \"codigo\"];\nconst TEXTOS    = [\"domicilio_buscado\"];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        328
+      ],
+      "id": "e44ac2e0-cdb5-4f2f-a250-2080b74a2524",
+      "name": "Validar_Entrada_filtro"
+    }
+  ],
+  "connections": {
+    "Vincular_Socio": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_vincular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_celular": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_celular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL_validacion_celular": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_celular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook_filtrar_domicilio": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_filtro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filtro_domicilio": {
+      "main": [
+        [
+          {
+            "node": "mapeo_lista_domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_lista_domicilio": {
+      "main": [
+        [
+          {
+            "node": "respuesta_filtro_domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "busqueda_socio": {
+      "main": [
+        [
+          {
+            "node": "mapeo_datos_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_datos_socio": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_vinculacion_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_celular": {
+      "main": [
+        [
+          {
+            "node": "SQL_validacion_celular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_vincular": {
+      "main": [
+        [
+          {
+            "node": "busqueda_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_filtro": {
+      "main": [
+        [
+          {
+            "node": "filtro_domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "errorWorkflow": "F5TPSiSS9JK7v3pz"
+  },
+  "versionId": "ac0725a1-fbb1-4071-8262-68ea8a42f180",
+  "id": "ZrXudut7OEHXu5bk",
+  "tags": []
+}

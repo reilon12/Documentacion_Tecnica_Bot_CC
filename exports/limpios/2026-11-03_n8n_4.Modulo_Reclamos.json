@@ -1,0 +1,1163 @@
+{
+  "name": "4. Modulo_Reclamos",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vincular_socio_reclamo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1984,
+        640
+      ],
+      "id": "6db94bc8-a54e-44a7-b363-95f82e68eebe",
+      "name": "Vincular_Socio",
+      "webhookId": "023bf835-d112-466c-9b47-984db7b17cb8",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## 4.1 - Validación de Usuario Invitado para Crear un Reclamo. (REMOVIDO)\n### Se validan el DNI, Numero de Cuenta y Celular. En caso de no encontrar datos, devuelve un json Vacio.",
+        "height": 320,
+        "width": 1824,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        480
+      ],
+      "id": "303f0517-9422-4e48-a6de-1d88ea281964",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT\n    Socio,\n    Codigo,\n    nombre,\n    dni,\n    UPPER(TRIM(domicilio)) AS domicilio\nFROM (\n    SELECT Socio,Codigo, nombre, dni, domicilio \n    FROM USUENER \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}' \n      AND Activo = 1\n\n    UNION\n\n    SELECT Socio,Codigo, nombre, dni, domicilio \n    FROM USUINTE \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}'   \n      AND Activo = 1\n\n    UNION\n\n    SELECT Socio, Codigo, nombre, dni, domicilio \n    FROM USUAGUA \n    WHERE Socio = '{{ $json.body.cuenta }}' \n      AND dni = '{{ $json.body.dni }}' \n      AND Activo = 1\n) AS ListaDomicilios\nWHERE domicilio IS NOT NULL AND TRIM(domicilio) <> ''\nORDER BY domicilio ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        640
+      ],
+      "id": "9bf58108-74b7-4664-90fe-b36e53851962",
+      "name": "SQL_Consulta_Actualiza",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3232,
+        640
+      ],
+      "id": "084a7710-42d9-4c04-8bca-58158dfbd81c",
+      "name": "Respuesta_vinculacion_socio",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (items.length === 0) {\n  return [{ json: { valido: false } }];\n}\n\n// Genera un array plano de cadenas de texto únicas\nconst domiciliosUnicos = [...new Set(\n  items\n    .map(item => item.json.domicilio ? String(item.json.domicilio).trim() : null)\n    .filter(Boolean)\n)];\n\nreturn [{\n  json: {\n    valido: true,\n    user_cuenta : items[0].json.Socio || items[0].json.Socio,\n    user_nombre: items[0].json.nombre,\n    user_dni: items[0].json.dni || items[0].json.DNI,\n    user_domicilios: domiciliosUnicos\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        640
+      ],
+      "id": "e84e3bec-afd9-4e9c-ac12-672a90538f1a",
+      "name": "Code in JavaScript",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "registrar_reclamo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        544
+      ],
+      "id": "ff4e1b14-81f5-4490-87e3-83bf984a3623",
+      "name": "Registrar_reclamo",
+      "webhookId": "e6f2c2fd-b523-4564-a96f-060b012f818a"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Registrar_reclamo').first().json.body.servicio }}",
+                    "rightValue": "Energia",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "77d2d765-0aee-4e5b-961c-5bcca36c1329"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "69dc8eb5-400f-45d3-bd74-fe7f8b91a482",
+                    "leftValue": "={{ $('Registrar_reclamo').first().json.body.servicio }}",
+                    "rightValue": "Agua",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "71d1f169-6f75-4681-8615-0c5f055eb1f7",
+                    "leftValue": "={{ $('Registrar_reclamo').first().json.body.servicio }}",
+                    "rightValue": "Internet",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        528
+      ],
+      "id": "f4cb197c-0b0a-4663-a615-e2ccab53591e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "## 4.2 REGISTRO DE RECLAMO\n### SQL realiza una consulta que busca el ultimo ID en la BDD, a raiz de ello, el Switch determina si es Energia,Agua o Internet... \n### Una vez seleccionado el modulo, desde los Codes se mapeara el tipo de reclamo, posterior a ello, se insertan los datos en BDD y finalmente, la respuesta sale en el Respond del Webhook.",
+        "height": 656,
+        "width": 1824,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        208
+      ],
+      "id": "a1a00cee-ace4-4b47-8d2f-205c682f149d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Escapa texto para MySQL (H-01 / H-11)\nconst esc = s => String(s ?? '').replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"''\");\n\nconst body = $('Registrar_reclamo').first().json.body || {};\nconst cuenta = $('Validar_Reclamo').first().json.cuenta;              // ya validada\nconst medidores = $('Medidor_por_domicilio').first().json || {};     // del domicilio elegido (H-08)\nconst subtipoOriginal = body.subtipo || '';\n// Sin tildes ni ñ: \"Cañería\" → \"caneria\" (H-19)\nconst subtipo = subtipoOriginal.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\nconst comentario = body.comentario || '';\nconst domicilio_particular = body.domicilio_particular || '';\n\nlet ot_actividad = 27;\nlet ot_tipo_tarea = null;\nlet ot_zona_trabajo = null;\n\nif (subtipo.includes('voltaje')) {\n  ot_actividad = 27;\n  ot_tipo_tarea = 4;\n  ot_zona_trabajo = 1;\n} else if (subtipo.includes('pilar')) {\n  ot_actividad = 21;\n}\n\nconst tareaTexto = comentario ? (subtipoOriginal + ' - ' + 'Comentario Socio: '+comentario + ' - ' + 'Domicilio Socio: ' + domicilio_particular) : subtipoOriginal;\n\nreturn [{\n  json: {\n    tipo: \"RECLAMO\",\n    ot_sector: 1,\n    ot_actividad: ot_actividad,\n    ot_tipo_tarea: ot_tipo_tarea,\n    ot_zona_trabajo: ot_zona_trabajo,\n    ot_asociado: esc(body.nombre),\n    ot_nro_socio: cuenta,\n    ot_domicilio: esc(body.domicilio),\n    ot_medidor: esc(medidores.medidor_energia || body.medidor_energia) || '',\n    ot_tarea: esc(tareaTexto),\n    ot_cierre: 1,\n    ot_trabajo: 2\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        400
+      ],
+      "id": "bfcb3d3e-86ed-4c44-b7fa-6af55841bd2f",
+      "name": "mapeo_energia"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Escapa texto para MySQL (H-01 / H-11)\nconst esc = s => String(s ?? '').replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"''\");\n\nconst body = $('Registrar_reclamo').first().json.body || {};\nconst cuenta = $('Validar_Reclamo').first().json.cuenta;              // ya validada\nconst medidores = $('Medidor_por_domicilio').first().json || {};     // del domicilio elegido (H-08)\nconst subtipoOriginal = body.subtipo || '';\n// Sin tildes ni ñ: \"Cañería\" → \"caneria\" (H-19)\nconst subtipo = subtipoOriginal.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\nconst comentario = body.comentario || '';\nconst domicilio_particular = body.domicilio_particular || '';\n\nlet ot_sector = 6;\nlet ot_actividad = 131;\n\nif (subtipo.includes('caneria') || subtipo.includes('cloacas')) {\n  ot_sector = 7;\n  ot_actividad = 152;\n}\n\nconst tareaTexto = comentario ? (subtipoOriginal + ' - ' + 'Comentario Socio: '+comentario + ' - ' + 'Domicilio Socio: ' + domicilio_particular) : subtipoOriginal;\n\nreturn [{\n  json: {\n    tipo: \"RECLAMO\",\n    ot_sector: ot_sector,\n    ot_actividad: ot_actividad,\n    ot_tipo_tarea: null,\n    ot_zona_trabajo: null,\n    ot_asociado: esc(body.nombre),\n    ot_nro_socio: cuenta,\n    ot_domicilio: esc(body.domicilio),\n    ot_medidor: esc(medidores.medidor_agua || body.medidor_agua) || '',\n    ot_tarea: esc(tareaTexto),\n    ot_cierre: 1,\n    ot_trabajo: 2\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        544
+      ],
+      "id": "2a0881e4-d075-4528-ad8d-9d3304b137bf",
+      "name": "mapeo_agua"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Escapa texto para MySQL (H-01 / H-11)\nconst esc = s => String(s ?? '').replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"''\");\n\nconst body = $('Registrar_reclamo').first().json.body || {};\nconst cuenta = $('Validar_Reclamo').first().json.cuenta;              // ya validada\nconst medidores = $('Medidor_por_domicilio').first().json || {};     // del domicilio elegido (H-08)\nconst subtipoOriginal = body.subtipo || '';\nconst comentario = body.comentario || '';\nconst domicilio_particular = body.domicilio_particular || '';\n\nconst tareaTexto = comentario ? (subtipoOriginal + ' - ' + 'Comentario Socio: '+comentario + ' - ' + 'Domicilio Socio: ' + domicilio_particular) : subtipoOriginal;\n\nreturn [{\n  json: {\n    tipo: \"RECLAMO\",\n    ot_sector: 2,\n    ot_actividad: 248,\n    ot_tipo_tarea: null,\n    ot_zona_trabajo: null,\n    ot_asociado: esc(body.nombre),\n    ot_nro_socio: cuenta,\n    ot_domicilio: esc(body.domicilio),\n    ot_medidor: '',\n    ot_tarea: esc(tareaTexto),\n    ot_cierre: 1,\n    ot_trabajo: 2\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        704
+      ],
+      "id": "bc082862-069b-433b-970e-dbf65bef1397",
+      "name": "mapeo_internet"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO orden_trabajo (\n  ot_nro_ot,\n  tipo,\n  ot_sector,\n  ot_actividad,\n  ot_tipo_tarea,\n  ot_zona_trabajo,\n  ot_asociado,\n  ot_nro_socio,\n  ot_domicilio,\n  ot_medidor,\n  ot_tarea,\n  ot_improcedente,\n  ot_ejecucion,\n  ot_cierre,\n  ot_trabajo\n)\nSELECT \n  COALESCE(MAX(ot_nro_ot), 0) + 1,\n  '{{ $json.tipo }}',\n  {{ $json.ot_sector }},\n  {{ $json.ot_actividad }},\n  {{ $json.ot_tipo_tarea ?? 'NULL' }},\n  {{ $json.ot_zona_trabajo ?? 'NULL' }},\n  '{{ $json.ot_asociado }}',\n  '{{ $json.ot_nro_socio }}',\n  TRIM(SUBSTRING_INDEX('{{ $json.ot_domicilio }}', '(', 1)),\n  NULLIF('{{ $json.ot_medidor }}', ''),\n  '{{ $json.ot_tarea }}',\n  1,\n  1,\n  {{ $json.ot_cierre }},\n  {{ $json.ot_trabajo }}\nFROM orden_trabajo;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        640,
+        544
+      ],
+      "id": "ea4e54fb-e7cb-43e7-9d52-366495667e3a",
+      "name": "insert_reclamo",
+      "credentials": {
+        "mySql": {
+          "name": "MySQL SIGO Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "estado_reclamo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        1104
+      ],
+      "id": "3495d5ac-5dee-4c44-adf8-5ed61396ce35",
+      "name": "estado_reclamo",
+      "webhookId": "fd00d6d6-7e77-48ae-b31d-aff33c2c494c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0cd997f1-4d60-478b-93cd-adf10de6c478",
+              "leftValue": "={{ $json.body.tipo_reclamo }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        1104
+      ],
+      "id": "24b81a21-1305-4a0a-ae0c-0c20397b2d1f",
+      "name": "if_tipo_reclamo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n\tot.ot_nro_socio,\n\tot.ot_nro_ot,\n\tot.ot_tarea,\n\tot.ot_cierre,\n\taet.aux_et_nombre,\n\tot.ot_ejecucion,\n\taca.aux_ca_nombre\nFROM orden_trabajo ot \nINNER JOIN auxiliar_estado_trabajos aet\n\tON ot.ot_ejecucion = aet.aux_et_id\nLEFT JOIN auxiliar_cierre_actividades aca\n\tON ot.ot_cierre = aca.aux_ca_id\nWHERE \n\tot.ot_nro_socio = '{{ $json.body.nro_socio }}' \n\tAND ot.tipo LIKE '%RECLAMO%' \n\tAND ot.ot_ejecucion = 1\n\tAND ot.ot_cierre IN (1,3);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        144,
+        1008
+      ],
+      "id": "ce5f4f59-6d6d-4557-aa16-ea022b4f24d8",
+      "name": "Reclamos_Activos",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "name": "MySQL SIGO Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n\tot.ot_nro_socio,\n\tot.ot_nro_ot,\n\tot.ot_tarea,\n\tot.ot_cierre,\n\taet.aux_et_nombre,\n\tot.ot_ejecucion,\n\taca.aux_ca_nombre\nFROM orden_trabajo ot \nINNER JOIN auxiliar_estado_trabajos aet\n\tON ot.ot_ejecucion = aet.aux_et_id\nLEFT JOIN auxiliar_cierre_actividades aca\n\tON ot.ot_cierre = aca.aux_ca_id\nWHERE \n\tot.ot_nro_socio = '{{ $json.body.nro_socio }}'\n\tAND ot.tipo LIKE '%RECLAMO%' \n\tAND ot.ot_ejecucion = 3\n\tAND ot.ot_cierre = 2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        144,
+        1248
+      ],
+      "id": "1b2404a3-7939-4bd2-bb94-0bff79c3d5c2",
+      "name": "Reclamos_Cerrados",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "name": "MySQL SIGO Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0 || !items[0].json || Object.keys(items[0].json).length === 0) {\n  return [{ json: { tiene_reclamos: false, reclamos: [] } }];\n}\n\nconst listaReclamos = items.map(item => {\n  const d = item.json || {};\n  const nroOt = d.ot_nro_ot || d.ot_id || 'S/N';\n  const tarea = d.ot_tarea ? d.ot_tarea.trim() : 'Sin descripción';\n  const estado = d.aux_et_nombre || 'En Proceso';\n  const avance = d.aux_ca_nombre || 'Sin actualización';\n\n  return {\n    id: String(nroOt),\n    label: 'Número de Tramite #' + nroOt + ' - ' +tarea,\n    estado: estado,\n    avance: avance\n  };\n});\n\nreturn [{\n  json: {\n    tiene_reclamos: true,\n    reclamos: listaReclamos\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        1120
+      ],
+      "id": "ef604b7a-8cc0-4992-95ca-3168cd65e980",
+      "name": "mapeo_estado_reclamo"
+    },
+    {
+      "parameters": {
+        "content": "## 4.3 Estado de Reclamos\n### Devolucion del estado de reclamo, en caso de no tener reclamos activos, no devuelve nada en typebot mas que un mensaje. Los estados cerrados, se guardaran todos en dicha opcion.",
+        "height": 528,
+        "width": 1824,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        880
+      ],
+      "typeVersion": 1,
+      "id": "f17ffbf3-74be-4e82-b573-51ed6db2ff8f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        848,
+        1120
+      ],
+      "id": "c3f9c991-08de-4a71-bc60-7560e1e336d2",
+      "name": "respuesta_estado_Reclamo"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        976,
+        544
+      ],
+      "id": "02383724-7166-4e09-8058-35be67b3a4cc",
+      "name": "Respond_registro_reclamo"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "usuario_activo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        -32
+      ],
+      "id": "2be77d29-c04a-4553-9995-ad8896d5b223",
+      "name": "Webhook_Usuario_Activo",
+      "webhookId": "74e69501-4010-4f3d-9f2b-4a297f9068de"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    ue.Codigo,\n    ue.Nombre,\n    ue.Socio,\n    ue.Activo,\n    ue.CodEstado,\n    ue.CausaBaja,\n    uest.Descripcion AS EstadoDescripcion,\n    'Energia' AS Servicio\nFROM USUENER ue\nINNER JOIN USUESTADOS uest ON ue.CodEstado = uest.Codigo\nWHERE ue.Socio = '{{ $json.socio }}'\n  AND UPPER(TRIM(ue.Domicilio)) = '{{ $json.domicilio_limpio }}'\n\nUNION ALL\n\nSELECT \n    ua.Codigo,\n    ua.Nombre,\n    ua.Socio,\n    ua.Activo,\n    ua.CodEstado,\n    ua.CausaBaja,\n    uest.Descripcion AS EstadoDescripcion,\n    'Agua' AS Servicio\nFROM USUAGUA ua\nINNER JOIN USUESTADOS uest ON ua.CodEstado = uest.Codigo\nWHERE ua.Socio = '{{ $json.socio }}'\n  AND UPPER(TRIM(ua.Domicilio)) = '{{ $json.domicilio_limpio }}'\n\nUNION ALL\n\nSELECT \n    ui.Codigo,\n    ui.Nombre,\n    ui.Socio,\n    ui.Activo,\n    ui.CodEstado,\n    ui.CausaBaja,\n    uest.Descripcion AS EstadoDescripcion,\n    'Internet' AS Servicio\nFROM USUINTE ui\nINNER JOIN USUESTADOS uest ON ui.CodEstado = uest.Codigo\nWHERE ui.Socio = '{{ $json.socio }}'\n  AND UPPER(TRIM(ui.Domicilio)) = '{{ $json.domicilio_limpio }}';"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        -32
+      ],
+      "id": "78cfd750-4574-495c-a960-2bea59811e61",
+      "name": "reclamo_activo_suspendido",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  const items = $input.all().map(item => item.json).filter(j => j && j.Servicio != null);\n\n  // Diccionario por defecto en caso de que en la BD el JOIN devuelva nulo\n  const descripcionesFallback = {\n    1: \"En Proceso\",\n    2: \"Activo\",\n    3: \"Suspendido\",\n    4: \"Inactivo\"\n  };\n\n  let resultadoValidacion = {\n    permite_reclamo: true,\n    servicios: {}\n  };\n\n  items.forEach(item => {\n    const servicio = item.Servicio.toLowerCase(); // \"energia\", \"agua\", \"internet\"\n    const activoVal = parseInt(item.Activo);\n    const codEstado = parseInt(item.CodEstado);\n    const causaBaja = item.CausaBaja;\n    const descEstado = item.EstadoDescripcion || descripcionesFallback[codEstado] || \"Desconocido\";\n\n    // CONDICIÓN DE HABILITACIÓN:\n    // Debe tener Activo === 1 Y CodEstado === 2 (Activo)\n    const esValido = (activoVal === 1 && codEstado === 2);\n\n    // Definición del motivo y mensaje visual para Typebot\n    let mensajeExplicativo = \"\";\n    \n    if (esValido) {\n      mensajeExplicativo = \"🟢 Suministro Activo y habilitado para reclamos.\";\n    } else if (codEstado === 3) {\n      mensajeExplicativo = \"🚫 Tu suministro se encuentra **SUSPENDIDO**. No es posible ingresar reclamos técnicos en este momento.\";\n    } else if (codEstado === 4 || activoVal === 0) {\n      mensajeExplicativo = \"🔴 Tu suministro se encuentra **INACTIVO**. Por favor, contactate con atención al cliente para regularizar la alta.\";\n    } else if (codEstado === 1) {\n      mensajeExplicativo = \"⏳ Tu suministro se encuentra **EN PROCESO** de alta/trámite. Todavía no se encuentra habilitado para reclamos.\";\n    } else {\n      mensajeExplicativo = `⚠️ El suministro se encuentra en estado: **${descEstado}**.`;\n    }\n\n    resultadoValidacion.servicios[servicio] = {\n      codigo: item.Codigo,\n      activo: activoVal,\n      cod_estado: codEstado,\n      estado_descripcion: descEstado,\n      causaBaja: causaBaja,\n      esta_ok: esValido,\n      mensaje_estado: mensajeExplicativo\n    };\n  });\n\n  return [{ json: resultadoValidacion }];\n\n} catch (e) {\n  return [{\n    json: {\n      permite_reclamo: false,\n      mensaje_bloqueo: \"Error al procesar la validación de estados.\",\n      servicios: {}\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        -32
+      ],
+      "id": "b7d1307a-754d-440f-81be-ff7631339029",
+      "name": "mapeo_usuario_activo_suspendido"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "d0c53b72-f7e2-40c6-83b4-9b7239f7f995",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// 1. Obtenemos el texto bruto del body\nlet rawBody = '';\nif (inputData.query && inputData.query.body) {\n  rawBody = typeof inputData.query.body === 'string' ? inputData.query.body : JSON.stringify(inputData.query.body);\n} else if (inputData.body) {\n  rawBody = typeof inputData.body === 'string' ? inputData.body : JSON.stringify(inputData.body);\n}\n\nlet socio = '';\nlet codigo = '';\nlet domicilio = '';\n\n// 2. Intentamos parsear como JSON normal\ntry {\n  const parsed = JSON.parse(rawBody);\n  socio = parsed.socio || '';\n  codigo = parsed.codigo || parsed.user_id || '';\n  domicilio = parsed.domicilio || '';\n} catch (e) {\n  // 3. Si el JSON viene mal construido/sin comas, extraemos los datos con Expresiones Regulares (Regex)\n  const socioMatch = rawBody.match(/\"socio\"\\s*:\\s*\"([^\"]+)\"/);\n  const codigoMatch = rawBody.match(/\"codigo\"\\s*:\\s*\"([^\"]+)\"/) || rawBody.match(/\"user_id\"\\s*:\\s*\"([^\"]+)\"/);\n  const domMatch = rawBody.match(/\"domicilio\"\\s*:\\s*\"([^\"]+)\"/);\n\n  if (socioMatch) socio = socioMatch[1];\n  if (codigoMatch) codigo = codigoMatch[1];\n  if (domMatch) domicilio = domMatch[1];\n}\n\n// 4. Limpiamos los paréntesis del domicilio\nif (typeof domicilio === 'string' && domicilio.includes('(')) {\n  domicilio = domicilio.split('(')[0];\n}\n\n// 5. Validación (H-01)\nconst socioLimpio = String(socio).trim().replace(/[\\s.\\-]/g, '');\nif (!/^\\d{1,15}$/.test(socioLimpio)) {\n  throw new Error('Entrada inválida en el campo \"socio\"');\n}\nlet domicilioSeguro = String(domicilio).trim().toUpperCase().slice(0, 200);\ndomicilioSeguro = domicilioSeguro.replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    socio: socioLimpio,\n    codigo: String(codigo).trim(),\n    domicilio_limpio: domicilioSeguro\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -32
+      ],
+      "id": "8586eb38-d39d-4bde-b3f4-9e5d10def8f4",
+      "name": "Limpiar_Domicilio"
+    },
+    {
+      "parameters": {
+        "content": "## 4.1 - Verificación de Usuario Activo - Suspendido - Inactivo para Reclamos\n### Antes de realizar el tipo de reclamo, se verifica si el suministro del usuario a dicho domicilio esta Activo, en caso contrario, se mostrara un mensaje que le impide realizarlos, ya que, estrictamente se pide ser un usuario ACTIVO para este Apartado.",
+        "height": 416,
+        "width": 1824,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "6291c486-e7bb-44a8-ae49-8f453f47ca50",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "limite_reclamos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        1728
+      ],
+      "id": "55a1211d-84d7-4904-bba2-af43b86fd5a7",
+      "name": "Webhook_Reclamos_Limites",
+      "webhookId": "44a65df7-1741-4eab-b7f5-a59c9ed14ddc"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        1728
+      ],
+      "id": "29817242-620a-4376-a1f1-5c0a55290954",
+      "name": "respuesta_limite"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// 1. Obtenemos el texto bruto del body\nlet rawBody = '';\nif (inputData.query && inputData.query.body) {\n  rawBody = typeof inputData.query.body === 'string' ? inputData.query.body : JSON.stringify(inputData.query.body);\n} else if (inputData.body) {\n  rawBody = typeof inputData.body === 'string' ? inputData.body : JSON.stringify(inputData.body);\n}\n\nlet socio = '';\nlet codigo = '';\nlet domicilio = '';\n\n// 2. Intentamos parsear como JSON normal\ntry {\n  const parsed = JSON.parse(rawBody);\n  socio = parsed.socio || '';\n  codigo = parsed.codigo || parsed.user_id || '';\n  domicilio = parsed.domicilio || '';\n} catch (e) {\n  // 3. Si el JSON viene mal construido/sin comas, extraemos los datos con Expresiones Regulares (Regex)\n  const socioMatch = rawBody.match(/\"socio\"\\s*:\\s*\"([^\"]+)\"/);\n  const codigoMatch = rawBody.match(/\"codigo\"\\s*:\\s*\"([^\"]+)\"/) || rawBody.match(/\"user_id\"\\s*:\\s*\"([^\"]+)\"/);\n  const domMatch = rawBody.match(/\"domicilio\"\\s*:\\s*\"([^\"]+)\"/);\n\n  if (socioMatch) socio = socioMatch[1];\n  if (codigoMatch) codigo = codigoMatch[1];\n  if (domMatch) domicilio = domMatch[1];\n}\n\n// 4. Limpiamos los paréntesis del domicilio\nif (typeof domicilio === 'string' && domicilio.includes('(')) {\n  domicilio = domicilio.split('(')[0];\n}\n\n// 5. Validación (H-01)\nconst socioLimpio = String(socio).trim().replace(/[\\s.\\-]/g, '');\nif (!/^\\d{1,15}$/.test(socioLimpio)) {\n  throw new Error('Entrada inválida en el campo \"socio\"');\n}\nlet domicilioSeguro = String(domicilio).trim().toUpperCase().slice(0, 200);\ndomicilioSeguro = domicilioSeguro.replace(/\\\\/g, '\\\\\\\\');\ndomicilioSeguro = domicilioSeguro.replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    socio: socioLimpio,\n    domicilio_limpio: domicilioSeguro\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        1728
+      ],
+      "id": "323531d3-d4c7-45d2-8200-0afa12e37fcc",
+      "name": "Limpiar_Domicilio1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook_Reclamos_Limites').first().json.body.servicio }}",
+                    "rightValue": "Energia",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "77d2d765-0aee-4e5b-961c-5bcca36c1329"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "69dc8eb5-400f-45d3-bd74-fe7f8b91a482",
+                    "leftValue": "={{ $('Webhook_Reclamos_Limites').first().json.body.servicio }}",
+                    "rightValue": "Agua",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "71d1f169-6f75-4681-8615-0c5f055eb1f7",
+                    "leftValue": "={{ $('Webhook_Reclamos_Limites').first().json.body.servicio }}",
+                    "rightValue": "Internet",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        1712
+      ],
+      "id": "f95173bb-4586-47bc-8982-ba4d18fff1c2",
+      "name": "Switch1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input; \nconst subtipoOriginal = body.subtipo || '';\nconst subtipo = subtipoOriginal.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\n\nlet ot_actividad = 27;\nlet ot_tipo_tarea = null;\nlet ot_zona_trabajo = null;\nconst ot_sector = 1;\n\nif (subtipo.includes('voltaje')) {\n  ot_actividad = 27;\n  ot_tipo_tarea = 4;\n  ot_zona_trabajo = 1;\n} else if (subtipo.includes('pilar')) {\n  ot_actividad = 21;\n}\n\n// Traemos todos los ítems del SQL\nconst itemsSQL = $('Execute a SQL query').all();\n\n// Buscamos la colisión exacta para Energía (Sector 1)\nconst colision = itemsSQL.find(item => {\n  const row = item.json;\n  return parseInt(row.ot_sector) === ot_sector && parseInt(row.ot_actividad) === ot_actividad;\n});\n\nif (colision) {\n  const rowData = colision.json || colision;\n  const descripcionActiva = rowData.descripcion_reclamo || input.descripcion_reclamo || subtipoOriginal;\n\n  return [{\n    json: {\n      permite_creacion: false,\n      mensaje_respuesta: `⚠️ **YA TENÉS UN RECLAMO ACTIVO**\\n\\nYa posees una orden en curso para este servicio de Energía:\\n* ${descripcionActiva} *\\n\\nDebés aguardar a que sea resuelta o consultar su estado.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    permite_creacion: true,\n    ot_sector: ot_sector,\n    ot_actividad: ot_actividad,\n    ot_tipo_tarea: ot_tipo_tarea,\n    ot_zona_trabajo: ot_zona_trabajo\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1584
+      ],
+      "id": "3b08b704-e428-4a8c-830d-b1448423c17c",
+      "name": "mapeo_energia_reclamo"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input; \nconst subtipoOriginal = body.subtipo || '';\nconst subtipo = subtipoOriginal.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');   // H-19\n\nlet ot_sector = 6;\nlet ot_actividad = 131;\n\nif (subtipo.includes('caneria') || subtipo.includes('cloacas')) {\n  ot_sector = 7;\n  ot_actividad = 152;\n}\n\n// Traemos todos los ítems del SQL\nconst itemsSQL = $('Execute a SQL query').all();\n\n// Buscamos la colisión exacta\nconst colision = itemsSQL.find(item => {\n  const row = item.json;\n  const sectorRow = parseInt(row.ot_sector);\n  const actividadRow = parseInt(row.ot_actividad);\n  \n  return (sectorRow === 6 && actividadRow === 131) || (sectorRow === 7 && actividadRow === 152);\n});\n\nif (colision) {\n  // Extraemos la descripción de manera segura desde la fila encontrada o desde el input actual\n  const rowData = colision.json || colision;\n  const descripcionActiva = rowData.descripcion_reclamo || input.descripcion_reclamo || subtipoOriginal;\n\n  return [{\n    json: {\n      permite_creacion: false,\n      mensaje_respuesta: `⚠️ **YA TENÉS UN RECLAMO ACTIVO**\\n\\nYa posees una orden en curso para este servicio de Agua:\\n* ${descripcionActiva} *\\n\\nDebés aguardar a que sea resuelta o consultar su estado.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    permite_creacion: true,\n    ot_sector: ot_sector,\n    ot_actividad: ot_actividad\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1728
+      ],
+      "id": "0459d516-8d2a-4f59-bb3f-4757c3f6a5d6",
+      "name": "mapeo_agua_reclamo"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input; \nconst subtipoOriginal = body.subtipo || '';\n\nconst ot_sector = 2;\nconst ot_actividad = 248;\n\n// Traemos todos los ítems del SQL\nconst itemsSQL = $('Execute a SQL query').all();\n\n// Buscamos la colisión exacta para Internet (Sector 2, Actividad 248)\nconst colision = itemsSQL.find(item => {\n  const row = item.json;\n  return parseInt(row.ot_sector) === ot_sector && parseInt(row.ot_actividad) === ot_actividad;\n});\n\nif (colision) {\n  const rowData = colision.json || colision;\n  const descripcionActiva = rowData.descripcion_reclamo || input.descripcion_reclamo || subtipoOriginal;\n\n  return [{\n    json: {\n      permite_creacion: false,\n      mensaje_respuesta: `⚠️ **YA TENÉS UN RECLAMO ACTIVO**\\n\\nYa posees una orden en curso para este servicio de Internet:\\n* ${descripcionActiva} *\\n\\nDebés aguardar a que sea resuelta o consultar su estado.`\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    permite_creacion: true,\n    ot_sector: ot_sector,\n    ot_actividad: ot_actividad\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1872
+      ],
+      "id": "c7a15d4a-b79e-4a43-b434-131a22ef4d52",
+      "name": "mapeo_internet_reclamo"
+    },
+    {
+      "parameters": {
+        "content": "## 4.4 Limite de Reclamos por Socio y Domicilio\n### Comprueba que el Socio vinculado al domicilio, no tenga mas de un Reclamo por Suministro, evitando así la sobrecarga de reclamos por usuario. \n### Hasta que no se resuelva dicho Reclamo, no se libera un nuevo cupo en ese Suministro.",
+        "height": 608,
+        "width": 1824,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        1424
+      ],
+      "typeVersion": 1,
+      "id": "778b9bbb-08c3-4c52-ad64-6f3784e0457f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    ot_sector,\n    ot_actividad,\n    ot_tarea AS descripcion_reclamo\nFROM orden_trabajo\nWHERE ot_nro_socio = '{{ $json.socio }}'\n  AND TRIM(SUBSTRING_INDEX(ot_domicilio, '(', 1)) = TRIM(SUBSTRING_INDEX('{{ $json.domicilio_limpio }}', '(', 1))\n  AND tipo = 'RECLAMO'\n  AND ot_cierre IN (1, 3);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        -48,
+        1728
+      ],
+      "id": "468d94bb-22d4-43eb-99d2-0659ce58c4a2",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "name": "MySQL SIGO Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación del reclamo (H-01) y domicilio para buscar el medidor (H-08)\nconst body = $input.first().json.body || {};\n\nconst cuenta = String(body.cuenta ?? '').trim().replace(/[\\s.\\-]/g, '');\nif (!/^\\d{1,15}$/.test(cuenta)) {\n  throw new Error('Entrada inválida en el campo \"cuenta\"');\n}\n\nlet domicilio = String(body.domicilio ?? '');\nif (domicilio.includes('(')) domicilio = domicilio.split('(')[0];\ndomicilio = domicilio.trim().toUpperCase().slice(0, 200).replace(/'/g, \"''\");\n\nreturn [{ json: { cuenta, domicilio_limpio: domicilio } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        384
+      ],
+      "id": "29eb8e40-4064-4538-ac1c-22e92d8617c6",
+      "name": "Validar_Reclamo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    (SELECT TOP 1 Medidor FROM USUENER\n      WHERE Socio = '{{ $json.cuenta }}' AND UPPER(TRIM(Domicilio)) = '{{ $json.domicilio_limpio }}' AND Activo = 1) AS medidor_energia,\n    (SELECT TOP 1 Medidor FROM USUAGUA\n      WHERE Socio = '{{ $json.cuenta }}' AND UPPER(TRIM(Domicilio)) = '{{ $json.domicilio_limpio }}' AND Activo = 1) AS medidor_agua;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        544
+      ],
+      "id": "e4dda5c0-610d-4a0e-90fc-54533eec7fd2",
+      "name": "Medidor_por_domicilio",
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ot_nro_ot\nFROM orden_trabajo\nWHERE ot_nro_socio = '{{ $('Validar_Reclamo').first().json.cuenta }}'\n  AND tipo = 'RECLAMO'\nORDER BY ot_nro_ot DESC\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        800,
+        384
+      ],
+      "id": "4423c6b9-d2b0-4c2e-958d-3cd8ff88004c",
+      "name": "Obtener_nro_ot",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "name": "MySQL SIGO Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Respuesta para Typebot (H-12): confirma el alta y devuelve el N° de OT\nconst fila = $input.first()?.json || {};\nconst nro = fila.ot_nro_ot ?? null;\n\nreturn [{\n  json: {\n    ok: nro !== null,\n    nro_ot: nro\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        544
+      ],
+      "id": "409eac69-cec4-4fd1-8d19-2094ebb90f0d",
+      "name": "resultado_reclamo"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"nro_socio\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mysql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -328,
+        984
+      ],
+      "id": "ebf7e97b-e7bf-4ba8-9160-03a25350f612",
+      "name": "Validar_Entrada_estado"
+    }
+  ],
+  "connections": {
+    "Vincular_Socio": {
+      "main": [
+        [
+          {
+            "node": "SQL_Consulta_Actualiza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL_Consulta_Actualiza": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_vinculacion_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar_reclamo": {
+      "main": [
+        [
+          {
+            "node": "Validar_Reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "mapeo_energia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "mapeo_agua",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "mapeo_internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_energia": {
+      "main": [
+        [
+          {
+            "node": "insert_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_agua": {
+      "main": [
+        [
+          {
+            "node": "insert_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_internet": {
+      "main": [
+        [
+          {
+            "node": "insert_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert_reclamo": {
+      "main": [
+        [
+          {
+            "node": "Obtener_nro_ot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "estado_reclamo": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if_tipo_reclamo": {
+      "main": [
+        [
+          {
+            "node": "Reclamos_Activos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reclamos_Cerrados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reclamos_Activos": {
+      "main": [
+        [
+          {
+            "node": "mapeo_estado_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reclamos_Cerrados": {
+      "main": [
+        [
+          {
+            "node": "mapeo_estado_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_estado_reclamo": {
+      "main": [
+        [
+          {
+            "node": "respuesta_estado_Reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_Usuario_Activo": {
+      "main": [
+        [
+          {
+            "node": "Limpiar_Domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reclamo_activo_suspendido": {
+      "main": [
+        [
+          {
+            "node": "mapeo_usuario_activo_suspendido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_usuario_activo_suspendido": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar_Domicilio": {
+      "main": [
+        [
+          {
+            "node": "reclamo_activo_suspendido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_Reclamos_Limites": {
+      "main": [
+        [
+          {
+            "node": "Limpiar_Domicilio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar_Domicilio1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "mapeo_energia_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "mapeo_agua_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "mapeo_internet_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_energia_reclamo": {
+      "main": [
+        [
+          {
+            "node": "respuesta_limite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_agua_reclamo": {
+      "main": [
+        [
+          {
+            "node": "respuesta_limite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_internet_reclamo": {
+      "main": [
+        [
+          {
+            "node": "respuesta_limite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Reclamo": {
+      "main": [
+        [
+          {
+            "node": "Medidor_por_domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medidor_por_domicilio": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener_nro_ot": {
+      "main": [
+        [
+          {
+            "node": "resultado_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "resultado_reclamo": {
+      "main": [
+        [
+          {
+            "node": "Respond_registro_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_estado": {
+      "main": [
+        [
+          {
+            "node": "if_tipo_reclamo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "errorWorkflow": "F5TPSiSS9JK7v3pz"
+  },
+  "versionId": "dfcb2fed-cf43-4d1d-bd72-d654334e0183",
+  "id": "TpIqYI3C8oHbFOhC",
+  "tags": []
+}

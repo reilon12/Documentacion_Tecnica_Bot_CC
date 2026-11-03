@@ -1,0 +1,118 @@
+{
+  "name": "5. Modulo_Auditoria",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 5 - REGISTRO DE HISTORIAL DE BOT CC\n### Se registra cada interacción del Usuario con el Bot, así como también las respuestas de este, se guardan en variables como Paso,Tipo y Respuesta",
+        "height": 320,
+        "width": 1008,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "d24e84b7-e187-4d0e-a50f-2106d2e694c4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auditoria",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        0
+      ],
+      "id": "1bb2df30-c0c5-495b-8b56-9c84cf907c26",
+      "name": "webhook - Parametros Historial",
+      "webhookId": "bb02336e-a591-4350-8ce3-b0fc20b7fb9d"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "auditoria_bot",
+          "mode": "list",
+          "cachedResultName": "auditoria_bot"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "datos_bot",
+              "value": "={{ JSON.stringify($json.body.datos_bot ?? {}) }}"
+            },
+            {
+              "column": "result_id",
+              "value": "={{ $json.body.result_id }}"
+            },
+            {
+              "column": "socio_id",
+              "value": "={{ $json.body.socio_id }}"
+            },
+            {
+              "column": "paso",
+              "value": "={{ $json.body.paso }}"
+            },
+            {
+              "column": "tipo",
+              "value": "={{ $json.body.tipo }}"
+            },
+            {
+              "column": "respuesta",
+              "value": "={{ $json.body.respuesta }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "ea38fa68-8ae1-4f85-a16f-a34757787b34",
+      "name": "Insert - BDD Bot_cc_Auditoria",
+      "credentials": {
+        "mySql": {
+          "name": "MySQL Bot_CC Auditoria"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook - Parametros Historial": {
+      "main": [
+        [
+          {
+            "node": "Insert - BDD Bot_cc_Auditoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert - BDD Bot_cc_Auditoria": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "errorWorkflow": "F5TPSiSS9JK7v3pz"
+  },
+  "versionId": "751b7e1b-3cf6-4cc7-9837-94adc505d8e4",
+  "id": "EpYgjdP4OzVQHDrM",
+  "tags": []
+}

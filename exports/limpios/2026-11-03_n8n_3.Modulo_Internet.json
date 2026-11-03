@@ -1,0 +1,751 @@
+{
+  "name": "3.Modulo_Internet",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "items_internet",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        336
+      ],
+      "id": "2ef106c8-8f0e-4e42-8623-a462fc76d654",
+      "name": "Items_Internet",
+      "webhookId": "a1a3adef-47b4-4cb3-b0fa-7f24ec3f25f3"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    ui.Nombre,\n    ui.Codigo,\n    ui.Tarifa,\n    t.Descripcion AS TarifaDescripcion,\n    uii.Descripcion AS PackDescripcion\nFROM USUINTE ui\nLEFT JOIN USUITEM_I   -- LEFT: el plan se muestra aunque no tenga packs (H-23) uii \n    ON ui.Codigo = uii.UsuInternet\nINNER JOIN TARIFAS t \n    ON ui.Tarifa = t.Codigo\nWHERE ui.Socio = '{{ $json.body.socio }}' \n  AND ui.Codigo = '{{ $json.body.domicilio }}';"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        336
+      ],
+      "id": "6e9e97b8-962e-4a06-982d-7c0bb82cfbd8",
+      "name": "SQL - Consulta_Items_usuario",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        752,
+        336
+      ],
+      "id": "89022e68-e65c-4ad6-959f-a373d13f7a59",
+      "name": "respuesta_items_internet"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Si no hay resultados\nif (!items || items.length === 0 || !items[0].json.Nombre) {\n  return [{\n    json: {\n      // null → Typebot toma el camino \"no tiene packs\" (H-23)\n      nombre_cliente: null,\n      tarifa_internet: null,\n      servicios_internet: null\n    }\n  }];\n}\n\n// 1. Formatear Nombre (Primera letra de cada palabra en mayúscula)\nconst nombreRaw = items[0].json.Nombre || '';\nconst nombreFormateado = nombreRaw\n  .toLowerCase()\n  .replace(/(^|\\s)\\S/g, l => l.toUpperCase());\n\n// 2. Obtener y formatear la Tarifa con emoji (ej: 🏷️ Residencial)\nconst tarifaRaw = items[0].json.TarifaDescripcion || 'Tarifa Única';\nconst tarifaInternet = \"🏷️ \" + tarifaRaw;\n\n// 3. Formatear cada pack/servicio de internet con su emoji 🔹\nconst listaServicios = items\n  .map(item => item.json.PackDescripcion)\n  .filter(Boolean)\n  .map(desc => \"  🔹 \" + desc)\n  .join('\\n');\n\nreturn [{\n  json: {\n    nombre_cliente: nombreFormateado,\n    tarifa_internet: tarifaInternet,\n    servicios_internet: listaServicios || 'Sin packs adicionales'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        336
+      ],
+      "id": "8b6305d2-46f8-4c4a-87d3-eef4392e1193",
+      "name": "mapeo_items_internet"
+    },
+    {
+      "parameters": {
+        "content": "## 3.1 Items que posee el usuario de Internet\n### En esta seccion, se validan los datos y se vinculan, para mostrar en pantalla que servicios relacionados al sector de internet tiene contratado el usuario.",
+        "height": 432,
+        "width": 1472,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        176
+      ],
+      "id": "aea654d6-2d90-4fc1-9275-2c0a8a77fe6e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 3.3 CONSULTA PACKS INTERNET \n### Devuelve los packs de internet disponibles con la Consulta SQL, los mapea en el Code y da la respuesta en el Webhook final.",
+        "height": 1344,
+        "width": 352,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        176
+      ],
+      "id": "d82a9d40-8f78-4b65-a0d7-070c726ed97e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "path": "consultar_pack_internet",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        464
+      ],
+      "id": "2cac8558-21b7-48ab-ba04-c8f728e403ff",
+      "name": "Webhook_Consulta_Packs_Internet",
+      "webhookId": "de15853a-20bf-4196-85ab-6d5cf9e602d8"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    Tarifa,\n    MAX(CASE WHEN Descripcion NOT LIKE 'TV%' THEN Descripcion ELSE NULL END) AS Descripcion_Internet,\n    SUM(ROUND(TRY_CAST(REPLACE(Formula, ',', '.') AS FLOAT) * 1.21, 0)) AS Precio_Total\nFROM dbo.ITEMS\nWHERE Tarifa IS NOT NULL \n  AND Tarifa != '' \n  AND Tarifa LIKE 'PACK%'\n  AND Descripcion NOT LIKE '%25MB%'\n  AND Descripcion NOT LIKE '%50MB%'\nGROUP BY Tarifa;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1216,
+        704
+      ],
+      "id": "cdbfba17-f38b-492a-b4e4-38fc3dab06e2",
+      "name": "SQL_conversion_packs",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet lineas = [];\n\nitems.forEach(item => {\n  const tarifaCodigo = String(item.json.Tarifa || '').trim().toUpperCase();\n  const descripcionRaw = String(item.json.Descripcion_Internet || '').trim().toUpperCase();\n  const precio = Math.round(item.json.Precio_Total || 0).toLocaleString('es-AR');\n\n  // FILTRO ESTRICTO: Si la tarifa o la descripción es de 25mb, 50mb o el PACK1 que no querés, lo salteamos por completo\n  if (\n    tarifaCodigo.includes('25') || \n    tarifaCodigo.includes('50') || \n    tarifaCodigo === 'PACK1' ||\n    descripcionRaw.includes('25.MB') || \n    descripcionRaw.includes('25 MB') || \n    descripcionRaw.includes('50 MB')\n  ) {\n    return; // Esto los \"borra\" para que ni siquiera entren a la lista\n  }\n\n  // Limpiamos los nombres comerciales para el resto\n  let nombreComercial = item.json.Descripcion_Internet || item.json.Tarifa;\n\n  if (tarifaCodigo.includes('100') || descripcionRaw.includes('100MB')) nombreComercial = 'Plan 100 MB + TV Cable';\n  else if (tarifaCodigo.includes('300') || descripcionRaw.includes('300MB')) nombreComercial = 'Plan 300 MB + TV Cable';\n  else if (tarifaCodigo.includes('500') || descripcionRaw.includes('500MB')) nombreComercial = 'Plan 500 MB + TV Cable';\n\n  lineas.push(\"🔹 *\" + nombreComercial + \"*\\n    ➔ *$ \" + precio + \"* / mes\");\n});\n\nconst mensajeFinal = \"📺 *PACKS INTERNET + TV CABLE*\\n\\n\" + lineas.join(\"\\n\\n\");\n\nreturn [{\n  json: {\n    texto_tarifas: mensajeFinal\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        944
+      ],
+      "id": "2a6e0b46-a8d9-44ed-8bd8-b50f2013e0da",
+      "name": "Code_mapeo_texto"
+    },
+    {
+      "parameters": {
+        "path": "suscripciones",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        448
+      ],
+      "id": "62a82e8e-e2e7-438a-89e9-c59cbdbd80b3",
+      "name": "Webhook_consulta_suscripciones",
+      "webhookId": "e8799de9-db40-416b-9581-47a374033d54"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    Descripcion,\n    ROUND(TRY_CAST(REPLACE(Formula, ',', '.') AS FLOAT) * 1.21, 0) AS Precio_Total\nFROM dbo.ITEMS\nWHERE Descripcion IN (\n    'PACK FUTBOL PREMIUM',\n    'HBO MAX FULL',\n    'UNIVERSAL PLUS',\n    'PACK HOT GO',\n    'APP SENSA TV.'\n)\n  AND Formula IS NOT NULL \n  AND Formula != ''\n  AND TRY_CAST(REPLACE(Formula, ',', '.') AS FLOAT) > 0;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        688
+      ],
+      "id": "097673c0-028f-43ec-88f8-23d9c33e5a32",
+      "name": "SQL_suscripciones_filtro",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet lineas = [];\n\nitems.forEach(item => {\n  const rawDesc = item.json.Descripcion || '';\n  const precio = Math.round(item.json.Precio_Total || 0).toLocaleString('es-AR');\n\n  let nombreComercial = rawDesc;\n\n  // Emprolijamos los nombres para la vista del usuario\n  if (rawDesc.includes('FUTBOL')) nombreComercial = 'Pack Fútbol Premium';\n  else if (rawDesc.includes('HBO')) nombreComercial = 'HBO Max Full';\n  else if (rawDesc.includes('UNIVERSAL')) nombreComercial = 'Universal Plus';\n  else if (rawDesc.includes('HOT GO')) nombreComercial = 'Pack Hot Go';\n  else if (rawDesc.includes('APP SENSA TV')) nombreComercial = 'Sensa TV (SOLO)';\n\n  lineas.push(\"📺 *\" + nombreComercial + \"*\\n   ➔ *$\" + precio + \"* / mes\");\n});\n\nconst mensajeFinal = \"⭐ *PACKS ADICIONALES Y PREMIUM*\\n\\n\" + lineas.join(\"\\n\\n\");\n\nreturn [{\n  json: {\n    texto_tarifas: mensajeFinal\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        944
+      ],
+      "id": "90694c1e-8be0-4868-a5f9-4e2bab487e5a",
+      "name": "Code_mapeo_suscripciones"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1600,
+        1184
+      ],
+      "id": "f3434ecf-e63f-4ef4-81d7-f03f429028a1",
+      "name": "Respuesta_suscripciones_precios"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1232,
+        1200
+      ],
+      "id": "c3bfb17a-e595-4c0c-9061-35dd9cde4731",
+      "name": "Respuesta_packs_internet"
+    },
+    {
+      "parameters": {
+        "content": "## 3.4 CONSULTA SUSCRIPCIONES/PACKS\n### Devuelve las suscripciones que posee la Cooperativa, con sus precios... si se modifica de la BDD, se actualizara automaticamente.",
+        "height": 1344,
+        "width": 352,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        176
+      ],
+      "id": "0e69d53e-ea1e-4bed-99e3-7bdf1eed51f3",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    'Energía' AS Servicio,\n    ue.Nombre,\n    t.Codigo AS CodigoTarifa,\n    t.Descripcion AS Tarifa\nFROM USUENER ue\nINNER JOIN TARIFAS t ON ue.Tarifa = t.Codigo\nWHERE ue.Socio = '{{ $json.body.numCuenta }}' AND ue.Activo = 1\n\nUNION ALL\n\nSELECT \n    'Internet' AS Servicio,\n    ui.Nombre,\n    t.Codigo AS CodigoTarifa,\n    t.Descripcion AS Tarifa\nFROM USUINTE ui\nINNER JOIN TARIFAS t ON ui.Tarifa = t.Codigo\nWHERE ui.Socio = '{{ $json.body.numCuenta }}' AND ui.Activo = 1\n\nUNION ALL\n\nSELECT \n    'Agua' AS Servicio,\n    ua.Nombre,\n    t.Codigo AS CodigoTarifa,\n    t.Descripcion AS Tarifa\nFROM USUAGUA ua\nINNER JOIN TARIFAS t ON ua.Tarifa = t.Codigo\nWHERE ua.Socio = '{{ $json.body.numCuenta }}' AND ua.Activo = 1;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1968,
+        624
+      ],
+      "id": "f5877d10-22ff-44e5-a4c4-3a04aff74b1c",
+      "name": "Consulta_Tarifas_usuario",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consultar_tarifas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        368
+      ],
+      "id": "4d23544f-a868-482e-a478-20f8e45b19a4",
+      "name": "Webhook_tarifas",
+      "webhookId": "f391f19e-18af-4714-8df3-3b3840362ec2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet resultado = {\n  encontrado: false,\n  nombre: \"\",\n  codigo_tarifa_energia: \"\",\n  tarifa_energia: \"Sin servicio\",\n  codigo_tarifa_internet: \"\",\n  tarifa_internet: \"Sin servicio\",\n  codigo_tarifa_agua: \"\",\n  tarifa_agua: \"Sin servicio\"\n};\n\nif (items.length > 0 && items[0].json.Nombre) {\n  resultado.encontrado = true;\n  resultado.nombre = items[0].json.Nombre;\n\n  items.forEach(item => {\n    const data = item.json;\n    \n    const servicio = (data.Servicio || '')\n      .toLowerCase()\n      .normalize(\"NFD\")\n      .replace(/[\\u0300-\\u036f]/g, \"\");\n\n    if (servicio === 'energia') {\n      resultado.codigo_tarifa_energia = data.CodigoTarifa || '';\n      resultado.tarifa_energia = data.Tarifa;\n    } else if (servicio === 'internet') {\n      resultado.codigo_tarifa_internet = data.CodigoTarifa || '';\n      resultado.tarifa_internet = data.Tarifa;\n    } else if (servicio === 'agua') {\n      resultado.codigo_tarifa_agua = data.CodigoTarifa || '';\n      resultado.tarifa_agua = data.Tarifa;\n    }\n  });\n}\n\nreturn [{ json: resultado }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        896
+      ],
+      "id": "78f2ce87-9a85-43c0-9bfd-4cdfedcca3fe",
+      "name": "Mapeo_tarifas_usuario"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1968,
+        1184
+      ],
+      "id": "cd9c216f-9692-4c72-b3c4-a4bc75326e33",
+      "name": "Respuesta_tarifas_mapeadas"
+    },
+    {
+      "parameters": {
+        "content": "## 3.5 - TARIFAS QUE POSEE EL USUARIO \n### Devuelve las tarifas que posee el usuario tanto en Agua,Electricidad e Internet",
+        "height": 1344,
+        "width": 320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        176
+      ],
+      "id": "32656165-3e31-4c8e-b51c-c73d5610ecec",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "path": "tarifas_comerciales",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        1104
+      ],
+      "id": "c30cf55c-2de3-43b7-b25c-9cdfbd3db121",
+      "name": "Webhook_tarifas_comerciales",
+      "webhookId": "77f74d47-0b4a-428f-8399-5532de1a7014",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n\tt.Codigo,\n\tt.Descripcion,\n\tt.TarifaMadre,\n\tt.DerechoConexion,\n\tt.DerechoConexionTrif,\n\tt.Reconexion,\n\tt.ReconexionTrif,\n\tt.Periodicidad\nFROM TARIFAS t\nWHERE \n\tt.TarifaBase = 1 AND \n\tt.Oculto = 0 AND \n\tt.Servicio = 'Energia' AND \n\tt.Codigo IN ('T1GBC', 'T1R', 'T2BT', 'T3BT', 'T4NR', 'T4R')"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        800
+      ],
+      "id": "dd712a62-321f-44d4-8290-1690fd4ab5da",
+      "name": "tarifas_comerciales_energia",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n\tt.Codigo,\n\tt.Descripcion,\n\tt.TarifaMadre,\n\tt.DerechoConexion,\n\tt.DerechoConexionTrif,\n\tt.Reconexion,\n\tt.ReconexionTrif,\n\tt.Periodicidad\nFROM TARIFAS t\nWHERE \n\tt.TarifaBase = 1 AND \n\tt.Oculto = 0 AND \n\tt.Servicio = 'Agua' AND \n\tt.Codigo IN ('1', '7')"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        944
+      ],
+      "id": "f6392137-ccdd-4480-a845-b8fe2fa358a1",
+      "name": "tarifas_comerciales_agua",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n\tt.Codigo,\n\tt.Descripcion,\n\tt.TarifaMadre,\n\tt.DerechoConexion,\n\tt.DerechoConexionTrif,\n\tt.Reconexion,\n\tt.ReconexionTrif,\n\tt.Periodicidad\nFROM TARIFAS t\nWHERE \n\tt.TarifaBase = 1 AND \n\tt.Oculto = 0 AND \n\tt.Servicio = 'Internet' AND \n\tt.Codigo IN ('I1', 'I2', 'PACK1')"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        1104
+      ],
+      "id": "b191ce1e-ae42-4041-8988-3ee2c3f258d9",
+      "name": "tarifas_comerciales_internet",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n\ti.Descripcion,\n\tcd.ImporteFijo\nFROM ITEMS i\nINNER JOIN CATEG_DET cd\nON i.ID = cd.Item\nWHERE i.Descripcion = 'Sepelio' AND \n\t\tcd.Codigo = 1"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        1296
+      ],
+      "id": "0b0567a7-5009-4a83-a7c0-81ca06128c7b",
+      "name": "tarifas_comerciales_Sepelio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        832,
+        1088
+      ],
+      "id": "2ef936c2-d72f-46f0-888b-6f50cd6ddf7d",
+      "name": "respuesta_tarifas_comerciales"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Se leen las 4 consultas SQL\nconst energia = $('tarifas_comerciales_energia').all().map(i => i.json);\nconst agua = $('tarifas_comerciales_agua').all().map(i => i.json);\nconst internet = $('tarifas_comerciales_internet').all().map(i => i.json);\nconst sepelio = $('tarifas_comerciales_Sepelio').all().map(i => i.json);\n\n// 2. Formateo de Moneda\nfunction fmt(valor) {\n  if (valor === undefined || valor === null) return \"$ 0,00\";\n  return new Intl.NumberFormat('es-AR', {\n    style: 'currency',\n    currency: 'ARS',\n    minimumFractionDigits: 2\n  }).format(valor).replace('ARS', '$').trim();\n}\n\n// 3. Plantilla con estética y formato Markdown\nconst textoMensaje = `💵 *VALORES Y COSTOS DE CONEXIÓN*\n───────────────────────────\n\n⚡ *Energía Eléctrica*\n• Monofásica Residencial (T1R): *${fmt(energia[1]?.DerechoConexion)}*\n• Trifásica Residencial (T1R TRIF): *${fmt(energia[1]?.DerechoConexionTrif)}*\n• Monofásica Comercial (T1GBC): *${fmt(energia[0]?.DerechoConexion)}*\n• Trifásica Comercial (T1GBC TRIF): *${fmt(energia[0]?.DerechoConexionTrif)}*\n\n💧 *Agua y Saneamiento*\n• Agua Potable (Cisterna 7m): *${fmt(agua[0]?.DerechoConexion)}*\n• Conexión de Cloacas: *${fmt(agua[1]?.DerechoConexion)}*\n• Reconexión Agua Potable: *${fmt(agua[0]?.Reconexion)}*\n\n🌐 *Telecomunicaciones*\n• Cable e Internet juntos: *${fmt(internet[2]?.DerechoConexion)}*\n\n🕊️ *Servicios Sociales*\n• Cuota Sepelio: *${fmt(sepelio[0]?.ImporteFijo)}*\n───────────────────────────`;\n\n// Retorna el mensaje en pantalla\nreturn [{\n  json: {\n    mensaje_final: textoMensaje\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        1088
+      ],
+      "id": "d1bcf3c3-4359-4254-89a6-05548b79955b",
+      "name": "Mapeo_tarifas"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        464,
+        1056
+      ],
+      "id": "fb14bd45-0700-43da-97b9-5a6f02ff32c4",
+      "name": "Merge Tarifas"
+    },
+    {
+      "parameters": {
+        "content": "## 3.2 TARIFAS COMERCIALES // Valores de Conexión\n### Como resultado de las consultas SQL seccionadas en cada Servicio (Energia,Agua,Internet,Sepelio), se mapean en el Code y el resultado se da por medio del Respond to Webhook.",
+        "height": 896,
+        "width": 1472,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        624
+      ],
+      "id": "bfd78dd1-784a-45fe-926c-4946275f67f9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"socio\", \"domicilio\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -104,
+        216
+      ],
+      "id": "0fadd287-f0a6-4645-bf24-b2241054dbe2",
+      "name": "Validar_Entrada_items"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"numCuenta\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        376
+      ],
+      "id": "65a366d1-4757-44a3-88bf-ec8d3893a4f0",
+      "name": "Validar_Entrada_tarifas"
+    }
+  ],
+  "connections": {
+    "Items_Internet": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL - Consulta_Items_usuario": {
+      "main": [
+        [
+          {
+            "node": "mapeo_items_internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeo_items_internet": {
+      "main": [
+        [
+          {
+            "node": "respuesta_items_internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_Consulta_Packs_Internet": {
+      "main": [
+        [
+          {
+            "node": "SQL_conversion_packs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL_conversion_packs": {
+      "main": [
+        [
+          {
+            "node": "Code_mapeo_texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code_mapeo_texto": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_packs_internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_consulta_suscripciones": {
+      "main": [
+        [
+          {
+            "node": "SQL_suscripciones_filtro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL_suscripciones_filtro": {
+      "main": [
+        [
+          {
+            "node": "Code_mapeo_suscripciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code_mapeo_suscripciones": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_suscripciones_precios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta_Tarifas_usuario": {
+      "main": [
+        [
+          {
+            "node": "Mapeo_tarifas_usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_tarifas": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_tarifas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeo_tarifas_usuario": {
+      "main": [
+        [
+          {
+            "node": "Respuesta_tarifas_mapeadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_tarifas_comerciales": {
+      "main": [
+        [
+          {
+            "node": "tarifas_comerciales_energia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "tarifas_comerciales_agua",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "tarifas_comerciales_internet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "tarifas_comerciales_Sepelio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tarifas_comerciales_energia": {
+      "main": [
+        [
+          {
+            "node": "Merge Tarifas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tarifas_comerciales_agua": {
+      "main": [
+        [
+          {
+            "node": "Merge Tarifas",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "tarifas_comerciales_internet": {
+      "main": [
+        [
+          {
+            "node": "Merge Tarifas",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "tarifas_comerciales_Sepelio": {
+      "main": [
+        [
+          {
+            "node": "Merge Tarifas",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Mapeo_tarifas": {
+      "main": [
+        [
+          {
+            "node": "respuesta_tarifas_comerciales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Tarifas": {
+      "main": [
+        [
+          {
+            "node": "Mapeo_tarifas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_items": {
+      "main": [
+        [
+          {
+            "node": "SQL - Consulta_Items_usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_tarifas": {
+      "main": [
+        [
+          {
+            "node": "Consulta_Tarifas_usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "errorWorkflow": "F5TPSiSS9JK7v3pz"
+  },
+  "versionId": "d4633d1b-69fb-4756-b64f-b263cce63241",
+  "id": "bR1U7NNw3NGy4wIn",
+  "tags": []
+}

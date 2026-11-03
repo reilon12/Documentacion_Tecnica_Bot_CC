@@ -1,0 +1,560 @@
+/* =====================================================================
+   CUECCA · Tema para Typebot 3.18 (v3)
+   Pegar en: Tema → Custom CSS. Fuente sugerida: Tema → Font = Poppins.
+   Sin animaciones ni transiciones propias: el movimiento es el de Typebot.
+   Las variables con !important pisan las que Typebot aplica en línea.
+   ===================================================================== */
+
+/* ---------- Tokens ---------- */
+.typebot-container {
+  --cuecca-navy: #233a6b;
+  --cuecca-navy-2: #2f4d8a;
+  --cuecca-navy-rgb: 35, 58, 107;
+  --cuecca-ink: #1d2738;
+  --cuecca-muted: #5d6879;
+  --cuecca-faint: #9aa4b2;
+  --cuecca-surface: #ffffff;
+  --cuecca-bg: #edf1f5;
+  --cuecca-line: #e4e9ef;
+  --cuecca-focus: #1e63c6;
+
+  /* Marca de agua */
+  --cuecca-watermark: url("https://i.imgur.com/w99I6KY.png");
+  --cuecca-watermark-opacity: 0.05;
+
+  /* Colores del mosaico del logo */
+  --px-red: #e53935;
+  --px-orange: #f59e0b;
+  --px-yellow: #f6c90e;
+  --px-green: #2ea44f;
+  --px-blue: #1e63c6;
+  --px-violet: #7b3fb5;
+
+  /* Contenedor: gris azulado con dos luces muy suaves de los colores de marca */
+  --typebot-container-font-family: "Poppins" !important;
+  --typebot-container-bg-color: var(--cuecca-bg) !important;
+  --typebot-container-bg-image:
+    radial-gradient(900px 520px at 100% 0%, rgba(30, 99, 198, 0.08), transparent 65%),
+    radial-gradient(760px 480px at 0% 100%, rgba(46, 164, 79, 0.06), transparent 65%) !important;
+  --typebot-chat-container-opacity: 0 !important;
+  --typebot-chat-container-color: 29, 39, 56 !important;
+  --typebot-chat-container-max-width: 760px !important;
+  --typebot-chat-container-border-width: 0px !important;
+  --typebot-chat-container-box-shadow: none !important;
+  --typebot-chat-container-border-radius: 0px !important;
+
+  /* Burbujas del bot */
+  --typebot-host-bubble-bg-rgb: 255, 255, 255 !important;
+  --typebot-host-bubble-opacity: 1 !important;
+  --typebot-host-bubble-color: var(--cuecca-ink) !important;
+  --typebot-host-bubble-border-width: 1px !important;
+  --typebot-host-bubble-border-rgb: 228, 233, 239 !important;
+  --typebot-host-bubble-border-opacity: 1 !important;
+  --typebot-host-bubble-border-radius: 20px 20px 20px 6px !important;
+  /* sombra corta: la burbuja cambia de tamaño mientras "escribe" */
+  --typebot-host-bubble-box-shadow: 0 1px 2px rgba(29, 39, 56, 0.06) !important;
+
+  /* Burbujas del socio */
+  --typebot-guest-bubble-bg-rgb: var(--cuecca-navy-rgb) !important;
+  --typebot-guest-bubble-opacity: 1 !important;
+  --typebot-guest-bubble-color: #ffffff !important;
+  --typebot-guest-bubble-border-width: 0px !important;
+  --typebot-guest-bubble-border-radius: 20px 20px 6px 20px !important;
+  --typebot-guest-bubble-box-shadow: 0 4px 14px rgba(35, 58, 107, 0.22) !important;
+
+  /* Botones base (también estrellas de valoración) */
+  --typebot-button-bg-rgb: var(--cuecca-navy-rgb) !important;
+  --typebot-button-opacity: 1 !important;
+  --typebot-button-color: #ffffff !important;
+  --typebot-button-border-width: 0px !important;
+  --typebot-button-border-radius: 14px !important;
+  --typebot-button-box-shadow: none !important;
+
+  /* Campo de texto: forma de píldora */
+  --typebot-input-bg-rgb: 255, 255, 255 !important;
+  --typebot-input-opacity: 1 !important;
+  --typebot-input-color: var(--cuecca-ink) !important;
+  --typebot-input-placeholder-color: var(--cuecca-faint) !important;
+  --typebot-input-border-width: 1px !important;
+  --typebot-input-border-rgb: 220, 226, 234 !important;
+  --typebot-input-border-opacity: 1 !important;
+  --typebot-input-border-radius: 26px !important;
+  --typebot-input-box-shadow: 0 6px 20px rgba(29, 39, 56, 0.08) !important;
+
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.typebot-container ::selection {
+  background: rgba(30, 99, 198, 0.18);
+}
+
+/* ---------- Franja del logo ---------- */
+.typebot-container::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  z-index: 60;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--px-red) 0 16.66%,
+    var(--px-orange) 16.66% 33.33%,
+    var(--px-yellow) 33.33% 50%,
+    var(--px-green) 50% 66.66%,
+    var(--px-blue) 66.66% 83.33%,
+    var(--px-violet) 83.33% 100%
+  );
+}
+
+/* ---------- Marca de agua ---------- */
+.typebot-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--cuecca-watermark);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: min(320px, 60%);
+  opacity: var(--cuecca-watermark-opacity);
+}
+
+/* ---------- Burbujas del bot ---------- */
+.typebot-host-bubble {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums; /* montos alineados en el detalle de deuda */
+}
+.typebot-host-bubble .slate-bold {
+  color: var(--cuecca-navy);
+  font-weight: 600;
+}
+.typebot-host-bubble .slate-italic {
+  font-style: italic;
+  color: var(--cuecca-muted);
+}
+.typebot-host-bubble a {
+  color: var(--cuecca-focus);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(30, 99, 198, 0.35);
+  text-underline-offset: 3px;
+}
+.typebot-host-bubble a:hover {
+  text-decoration-color: currentColor;
+}
+.typebot-host-bubble img,
+.typebot-host-bubble video,
+.typebot-host-bubble iframe {
+  border-radius: 14px;
+}
+
+/* Puntos de "escribiendo" en el color de marca */
+.bubble1,
+.bubble2,
+.bubble3 {
+  background-color: var(--cuecca-navy);
+  opacity: 0.4;
+}
+
+/* ---------- Burbujas del socio ---------- */
+.typebot-guest-bubble {
+  background-image: linear-gradient(135deg, var(--cuecca-navy-2), var(--cuecca-navy));
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+
+/* ---------- Menú de opciones: tarjeta con lista ----------
+   Cada opción tiene: marca de color redondeada (categoría), separador
+   que no llega a los bordes, y flecha a la derecha. */
+.typebot-buttons-input > [data-slot="list"] {
+  gap: 0;
+  width: min(100%, 360px);
+  padding: 6px 0;
+  background: var(--cuecca-surface);
+  border: 1px solid var(--cuecca-line);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(29, 39, 56, 0.04), 0 10px 28px rgba(29, 39, 56, 0.08);
+}
+
+/* Título de la tarjeta */
+.typebot-buttons-input > [data-slot="list"]::before {
+  content: "Elegí una opción";
+  display: block;
+  padding: 0.35rem 1.15rem 0.5rem;
+  color: var(--cuecca-faint);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.typebot-buttons-input > [data-slot="list"] > span {
+  display: block;
+  width: 100%;
+}
+
+/* Separador entre opciones, con márgenes a los costados */
+.typebot-buttons-input > [data-slot="list"] > span + span::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.15rem;
+  right: 1rem;
+  height: 1px;
+  background: var(--cuecca-line);
+  pointer-events: none;
+}
+
+.typebot-buttons-input .typebot-button {
+  position: relative;
+  width: 100%;
+  min-height: 46px; /* área táctil cómoda en celular */
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left;
+  gap: 0.55rem;
+  padding: 0.7rem 0.9rem 0.7rem 1.15rem;
+  background: transparent;
+  color: var(--cuecca-navy);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-weight: 500;
+  font-size: 0.93rem;
+  line-height: 1.35;
+  filter: none;
+}
+
+/* Marca de categoría: pastilla redondeada, no de borde a borde */
+.typebot-buttons-input .typebot-button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent, #cfd6df);
+}
+
+/* Flecha: indica que la opción lleva a otra pantalla */
+.typebot-buttons-input .typebot-button::after {
+  content: "›";
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: #b8c1cc;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.typebot-buttons-input .typebot-button:hover {
+  background: #f3f6fa;
+  background: color-mix(in srgb, var(--accent, var(--cuecca-navy)) 7%, #ffffff);
+  filter: none;
+}
+.typebot-buttons-input .typebot-button:hover::before {
+  height: 30px;
+  margin-top: -15px;
+}
+.typebot-buttons-input .typebot-button:hover::after {
+  color: var(--accent, var(--cuecca-navy));
+}
+.typebot-buttons-input .typebot-button:active {
+  background: var(--cuecca-navy);
+  color: #ffffff;
+  filter: none;
+}
+.typebot-buttons-input .typebot-button:active::after {
+  color: #ffffff;
+}
+
+/* Categorías del menú principal (data-itemid de cada botón).
+   Si se borra y se vuelve a crear un botón, su ID cambia. */
+[data-itemid="htrpuji0daqqk5s84z1wm9zj"],   /* Consultar deuda total   */
+[data-itemid="j5pzbt8oud7dtgzr2xdh5g86"],   /* Descargar mi factura    */
+[data-itemid="njhsbtl85bit6bds5ying8qe"]    /* Métodos de pago         */
+  { --accent: var(--px-orange); }
+
+[data-itemid="d1yngatjgld7vyww3w5w25b6"]    /* Hacer un reclamo        */
+  { --accent: var(--px-red); }
+
+[data-itemid="ogtm0kcd0yir77guhfydrtw6"]    /* Ver mis suministros     */
+  { --accent: var(--px-yellow); }
+
+[data-itemid="okh285fozedou5roi3vvz1zi"],   /* Gestión de mi Internet  */
+[data-itemid="qemktamapbee0hqqqo3vbgtq"]    /* Planes de Internet      */
+  { --accent: var(--px-green); }
+
+[data-itemid="rudcv85o0h3hy10pcvl0qgi3"],   /* Hablar con un operario  */
+[data-itemid="it7cav5lwbfuj061otdlns56"],   /* Información general     */
+[data-itemid="p3jfalj019dc5xwfou6kcs4k"]    /* Horarios de atención    */
+  { --accent: var(--px-blue); }
+
+[data-itemid="e4hc1ksvgjlt00uvttdgezj7"],   /* Trámites y tarifas      */
+[data-itemid="c5chvsxffub5s3kdbzfrnbzg"]    /* Alta de servicio        */
+  { --accent: var(--px-violet); }
+
+/* "Próximamente": apagado, sin flecha (el texto ya lo aclara) */
+.typebot-buttons-input [data-itemid="vizxiucht4kt1crngeamjy8x"] {
+  color: var(--cuecca-faint);
+}
+.typebot-buttons-input [data-itemid="vizxiucht4kt1crngeamjy8x"]::after {
+  content: none;
+}
+
+/* "Cerrar sesión": pie de la tarjeta, separado y discreto */
+.typebot-buttons-input [data-itemid="r2wjix91yhunijd26fhbykm8"] {
+  margin-top: 4px;
+  color: var(--cuecca-muted);
+  font-weight: 400;
+  font-size: 0.88rem;
+}
+.typebot-buttons-input [data-itemid="r2wjix91yhunijd26fhbykm8"]::before {
+  content: none;
+}
+.typebot-buttons-input [data-itemid="r2wjix91yhunijd26fhbykm8"]::after {
+  content: "↩";
+  font-size: 1rem;
+}
+
+
+/* =====================================================================
+   Botones de los submenús (generado desde el export, 03-11-2026)
+   Mismo criterio que el menú principal: la marca izquierda indica el
+   área. En Reclamos, cada servicio usa su color: energía amarillo,
+   agua azul, internet verde. Si se recrea un botón, cambia su ID.
+   ===================================================================== */
+
+/* Color por defecto para botones sin categoría (p. ej. listas dinámicas
+   de domicilios y de reclamos, cuyos IDs los genera Typebot) */
+:where(.typebot-buttons-input .typebot-button) { --accent: var(--cuecca-navy-2); }
+
+/* Deuda, facturas y pagos */
+[data-itemid="eln0zqqfypfc8pt5h6z8z0p7"], /* Suministros · 💳 Ver Deuda por Suministros */
+[data-itemid="h9bx9mjngojoxh8yoeotjxms"], /* Pagos_Proximamente · 📋 Estado de mis Suministros */
+[data-itemid="p7mcqzzhwdp7ritivwoj9m01"], /* Pagos_Proximamente · 📤 Subir Comprobante */
+[data-itemid="baje72l19oofs8q52j6r4qdh"], /* ¿Comentario? · ⭐ Valorar Experiencia */
+[data-itemid="ipgcan2zw749vbjm4kiv1lqp"], /* Acceder a mi factura · Acceder a mis Facturas. */
+[data-itemid="cv0ysexu7elb63avf3m7ia7a"], /* Acceder a mi factura · Acceder a mis Facturas // Se solicitaran d */
+[data-itemid="jyu120rve5ydrxuf24irfc86"], /* ¿Datos de Deuda? · 💳 Métodos de Pago */
+[data-itemid="ykaw5bbl190zwh7wlrlqesjc"], /* ¿Datos de Deuda? · 📄 Acceder a mis facturas digitales. */
+[data-itemid="ufapaod45kpvez5pkszuew0b"], /* Modulo Operador. · 💰 Facturación y Convenios: Consultas por i */
+[data-itemid="vmvuj13s3op1gg4wgygj9hqt"], /* Modulo Tramites, Subsidios y Tarifas. · 💳 Métodos de pago */
+[data-itemid="x7myuxf9v5zl9s1pq4k2zhbs"]  /* Estado Reclamo Seleccion · Reclamos Activos. */
+  { --accent: var(--px-orange); }
+
+/* Reclamos y soporte técnico */
+[data-itemid="zlotj22wqma2qmcwz4k0yy4p"], /* Suministros · ⚠️ Hacer un Reclamo */
+[data-itemid="az6w6o38t5miepgvy9lom2nt"], /* Módulo de Reclamos. · 🔍 Consultar estado de mi reclamo */
+[data-itemid="zyajm1pwpo13t4kmr7bxabzg"]  /* Modulo Operador. · 🛠️ Soporte Técnico Especializado: Fallas c */
+  { --accent: var(--px-red); }
+
+/* Energía y suministros */
+[data-itemid="gp3lhob3wd40zbfv8jpdw4yl"], /* Suministros · 📊 Mis Consumos */
+[data-itemid="rtzxpz4vf19n6ecm1zp3powe"], /* Módulo de Reclamos. · ⚡ Reclamo de Energía */
+[data-itemid="z9wtndolnsx3sib128dr54v0"], /* Reclamo de Energia · Medicion de Voltaje (Alta o Baja Tension) */
+[data-itemid="e4mpocqwxl5ee54arihj7mot"], /* Reclamo de Energia · Cortes de luz constantes / Suministro cort */
+[data-itemid="ekujv3o9e2zif0bdfwa3ko8l"]  /* Reclamo de Energia · Otro. (Particular) */
+  { --accent: var(--px-yellow); }
+
+/* Agua, información y reintentos */
+[data-itemid="sihvk5x4bym5shx7k3f6oonh"], /* Módulo de Reclamos. · 💧 Reclamo de Agua */
+[data-itemid="zo39ct2qsggced0gkp7u5sd5"], /* Reclamo de Agua · Alto Consumo. */
+[data-itemid="woh7f757kjt78aq8iaet0vjt"], /* Reclamo de Agua · Cañería Tapada. */
+[data-itemid="xv0t3q7gqz3zsrhfmc6fak20"], /* Reclamo de Agua · Otro. (Problema Particular) */
+[data-itemid="z33qr72cd7vm7tkc5chbnlbf"], /* Modulo Operador. · 💬 Otra Consulta / Asistencia General: Cual */
+[data-itemid="ejpjc9w7gjifeqf8gox3713t"], /* Modulo Informacion General · 🧾 Cálcula tu factura */
+[data-itemid="io8sfs4g4wjablx2x9j6g8xa"], /* Modulo Informacion General · ⚖️ Oceba */
+[data-itemid="uxp6vxmdttj2tr6dw6t3wjgg"], /* Modulo Informacion General · 📋 Cuadro Tarifario */
+[data-itemid="qe648yjdlecvmebdcz5y5i2f"], /* Modulo Informacion General · 🌱 Ahorro de Energía */
+[data-itemid="pqocqy4vsiugsnz2h9e63pts"], /* Modulo Informacion General · 🚨 Seguridad Eléctrica (Vía Pública) */
+[data-itemid="n0wojycbdvzm697lrmr3lnsh"], /* Modulo Informacion General · ⚡ Electrodependientes */
+[data-itemid="yjc1fy6pyhyg32ernqax7dox"], /* Modulo Informacion General · 🌐 Balance Social */
+[data-itemid="w74rloc27zzu7td8x4q10oof"], /* Modulo Informacion General · 🏬 Entidades de Bien Público */
+[data-itemid="svbavrmmbgca2motlmmeddfa"], /* Modulo Informacion General · 🛡️ Violencia de Género */
+[data-itemid="ajeh454vmxbvrhv65lx2imjf"], /* Modulo Informacion General · ⚽ Bonificación Clubes y Asociaciones */
+[data-itemid="g0mkwnj3294293xfovr07601"], /* Modulo Informacion General · 👩‍🚒 Bonificación Bomberos Voluntarios */
+[data-itemid="icilifaikmqchyle138jac33"], /* ¿Reintentar? · 🔄 Reintentar. */
+[data-itemid="amafotrkln0gvrmyo2b1fmqp"], /* domicilio_no_encontrado · Reintentar */
+[data-itemid="qhf8q36erezpabgn402q6vgt"]  /* domicilio_no_encontrado · Reintentar */
+  { --accent: var(--px-blue); }
+
+/* Internet y confirmaciones */
+[data-itemid="l9ruxxk6zm3g1ojwlq8ab90r"], /* Gestion_Internet_Proximamente · 🔐 Cambiar Contraseña de Wi-Fi */
+[data-itemid="djrmx6ho7ajqzvxlqou5n0ge"], /* Gestion_Internet_Proximamente · 📈 Consultar Consumos Mensuales */
+[data-itemid="tbx1cvz4tn9m89h2c6cfe2iu"], /* Módulo de Reclamos. · 🌐 Reclamo de Internet */
+[data-itemid="vu524vrokf6z07tnp0j2st4u"], /* Reclamo de Internet · Sin servicio de Internet. */
+[data-itemid="u67s7jt25hgcnnkpj0igc0em"], /* Reclamo de Internet · Otro. (Particular) */
+[data-itemid="dbe8w3l6czqigukxypxb2nxc"], /* Estado Reclamo Seleccion · Reclamos Cerrados. */
+[data-itemid="u17lw4tgw7kh7uw0ggn4re88"], /* Modulo Operador. · 🌐 Planes y Contrataciones: Modificación de */
+[data-itemid="xi6sqcriwdhl2n1ue8yg6fg6"], /* Módulo de Internet. · 📦 Mis planes y packs contratados */
+[data-itemid="n1frrfnhq9d1g3mworgq5ddw"], /* Módulo de Internet. · 🌐 Planes de Internet y Combos */
+[data-itemid="e18o1bnl3t7r68ah45spdlas"], /* Módulo de Internet. · ⚽ Packs adicionales (Sensa / Fútbol / HBO) */
+[data-itemid="uecrbtmfeqvx1q395pyeu4wk"]  /* Informacion y Terminos · Acepto los Términos. */
+  { --accent: var(--px-green); }
+
+/* Trámites, tarifas y alta */
+[data-itemid="eqwoacqtxrz94w4rsn5b6bcg"], /* Suministros · 📄 Información sobre Tarifas */
+[data-itemid="a2jv621wh9yke1ii4san9mo0"], /* Modulo Operador. · 📝 Trámites y Cambio de Titularidad: Requis */
+[data-itemid="o6522vwmmvanlufqtk2s411q"], /* Modulo Tramites, Subsidios y Tarifas. · ❓ ¿Qué subsidio energético poseo? */
+[data-itemid="oin4mbbghk4xzxmmimuyz4gj"], /* Modulo Tramites, Subsidios y Tarifas. · ⏱️ Tiempos de Reconexión */
+[data-itemid="l9vjbksg9bp9hqyeh06unt3z"], /* Modulo Tramites, Subsidios y Tarifas. · 🏷️ ¿Soy beneficiario de Tarifa Social? / S */
+[data-itemid="lfq4uskz7xjq8nwqea1vfr3x"], /* Modulo Tramites, Subsidios y Tarifas. · ⚡ ¿Puedo acceder al Subsidio Energético? / */
+[data-itemid="l4znt81sxr3q520icjuwaxpx"], /* Modulo Tramites, Subsidios y Tarifas. · 📅 Instructivo de agendas de pago */
+[data-itemid="euo7a4xuyfxrcpy88gczkt11"], /* Modulo Tramites, Subsidios y Tarifas. · 👤 Información sobre cambio de titularidad */
+[data-itemid="jv07r4jzhmsf9bumzmplktlf"], /* Boton_alta · 🏠 Propietario */
+[data-itemid="dl0mmgfyzlebo3zpbp0lwsx0"], /* Boton_alta · 🏪 Comerciante */
+[data-itemid="xny5xbqptonrntb1amnyjn61"]  /* Boton_alta · 🔑 Inquilino */
+  { --accent: var(--px-violet); }
+
+/* Opciones secundarias */
+[data-itemid="ltkzhdhrcqypr620hjtb3z2h"], /* Informacion y Terminos · No los acepto, accedo a datos meramente in */
+[data-itemid="wngoaxq71q4bxnsl2ut64rhk"]  /* ¿Reintentar? · 👤 Continuar como Invitado. */
+  { --accent: #cfd6df; }
+
+/* Navegación (Volver / Salir): pie discreto, como "Cerrar sesión" */
+.typebot-buttons-input [data-itemid="jkp2wkhmw2pqj7ff1ofh6nlm"], /* Suministros · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="zqdksnr8kir1h2f1uy915oqk"], /* Gestion_Internet_Proximamente · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="vtpit4a6ghpcuats1xzbdmks"], /* Pagos_Proximamente · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="kfqlrrj0lwhgmq66k5u1wh82"], /* ¿Comentario? · 🚪 Cerrar Sesión / Salir */
+.typebot-buttons-input [data-itemid="h158ls0giv9753q8ior0rmop"], /* Acceder a mi factura · Volver al menú principal. */
+.typebot-buttons-input [data-itemid="v90utysjqnphdrr8l6tvlv3o"], /* Módulo de Reclamos. · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="f69lsfgc6qkg6v6iano0b4f1"], /* Reclamo de Energia · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="aqtmlmd62hrav57plaqvj61c"], /* Reclamo de Agua · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="ka3fgkuv2kjqoe68qspz0e0p"], /* Reclamo de Internet · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="quwlp72ey51deyyisqyx4vex"], /* Estado Reclamo Seleccion · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="ryj9u35auhwe46ssri3kvhnf"], /* Reclamo_mensaje_estado · ↩️ Volver a selección de reclamos. */
+.typebot-buttons-input [data-itemid="wx5j3wjmidxq2lljukfltcyd"], /* Reclamo_mensaje_estado · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="f5x0l2utlo8ev4fbe0vq6xl2"], /* Sin Deuda · Volver a la Sección de Facturación. */
+.typebot-buttons-input [data-itemid="zwtaxpacczh61ftwkch9qtyw"], /* Sin Deuda · Volver al Menú Principal. */
+.typebot-buttons-input [data-itemid="igxbpt3laowfvgaea35mmep1"], /* ¿Datos de Deuda? · Volver al Módulo de Suministros. */
+.typebot-buttons-input [data-itemid="h6waryvub6g9vwhx128g4rxh"], /* ¿Datos de Deuda? · Volver al Menú Principal. */
+.typebot-buttons-input [data-itemid="zisagniecm62xmvxeoki2vzj"], /* Modulo Operador. · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="gm1imzcz1eppt7ek3misld0r"], /* Modulo Tramites, Subsidios y Tarifas. · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="piz1hepvxqp9ridbtul4cgxs"], /* Boton_alta · 🏠 Volver al menú principal */
+.typebot-buttons-input [data-itemid="eatazeev8duc4ruugrlwky1o"], /* Módulo de Internet. · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="rpn5pqgnygwahtmfqahv4mvk"], /* Modulo Informacion General · ↩️ Volver al menú principal */
+.typebot-buttons-input [data-itemid="dmjfd2izh9b0bkvhibvaaylt"], /* domicilio_no_encontrado · Volver al Menu Principal */
+.typebot-buttons-input [data-itemid="qatr10iv8nom0wmmcbohtp37"]  /* domicilio_no_encontrado · Volver al Menú Principal */ {
+  margin-top: 4px;
+  color: var(--cuecca-muted);
+  font-weight: 400;
+  font-size: 0.88rem;
+}
+.typebot-buttons-input [data-itemid="jkp2wkhmw2pqj7ff1ofh6nlm"]::before,
+.typebot-buttons-input [data-itemid="zqdksnr8kir1h2f1uy915oqk"]::before,
+.typebot-buttons-input [data-itemid="vtpit4a6ghpcuats1xzbdmks"]::before,
+.typebot-buttons-input [data-itemid="kfqlrrj0lwhgmq66k5u1wh82"]::before,
+.typebot-buttons-input [data-itemid="h158ls0giv9753q8ior0rmop"]::before,
+.typebot-buttons-input [data-itemid="v90utysjqnphdrr8l6tvlv3o"]::before,
+.typebot-buttons-input [data-itemid="f69lsfgc6qkg6v6iano0b4f1"]::before,
+.typebot-buttons-input [data-itemid="aqtmlmd62hrav57plaqvj61c"]::before,
+.typebot-buttons-input [data-itemid="ka3fgkuv2kjqoe68qspz0e0p"]::before,
+.typebot-buttons-input [data-itemid="quwlp72ey51deyyisqyx4vex"]::before,
+.typebot-buttons-input [data-itemid="ryj9u35auhwe46ssri3kvhnf"]::before,
+.typebot-buttons-input [data-itemid="wx5j3wjmidxq2lljukfltcyd"]::before,
+.typebot-buttons-input [data-itemid="f5x0l2utlo8ev4fbe0vq6xl2"]::before,
+.typebot-buttons-input [data-itemid="zwtaxpacczh61ftwkch9qtyw"]::before,
+.typebot-buttons-input [data-itemid="igxbpt3laowfvgaea35mmep1"]::before,
+.typebot-buttons-input [data-itemid="h6waryvub6g9vwhx128g4rxh"]::before,
+.typebot-buttons-input [data-itemid="zisagniecm62xmvxeoki2vzj"]::before,
+.typebot-buttons-input [data-itemid="gm1imzcz1eppt7ek3misld0r"]::before,
+.typebot-buttons-input [data-itemid="piz1hepvxqp9ridbtul4cgxs"]::before,
+.typebot-buttons-input [data-itemid="eatazeev8duc4ruugrlwky1o"]::before,
+.typebot-buttons-input [data-itemid="rpn5pqgnygwahtmfqahv4mvk"]::before,
+.typebot-buttons-input [data-itemid="dmjfd2izh9b0bkvhibvaaylt"]::before,
+.typebot-buttons-input [data-itemid="qatr10iv8nom0wmmcbohtp37"]::before {
+  content: none;
+}
+
+/* Volver/Salir ya traen su emoji: sin flecha extra */
+.typebot-buttons-input [data-itemid="jkp2wkhmw2pqj7ff1ofh6nlm"]::after,
+.typebot-buttons-input [data-itemid="zqdksnr8kir1h2f1uy915oqk"]::after,
+.typebot-buttons-input [data-itemid="vtpit4a6ghpcuats1xzbdmks"]::after,
+.typebot-buttons-input [data-itemid="kfqlrrj0lwhgmq66k5u1wh82"]::after,
+.typebot-buttons-input [data-itemid="h158ls0giv9753q8ior0rmop"]::after,
+.typebot-buttons-input [data-itemid="v90utysjqnphdrr8l6tvlv3o"]::after,
+.typebot-buttons-input [data-itemid="f69lsfgc6qkg6v6iano0b4f1"]::after,
+.typebot-buttons-input [data-itemid="aqtmlmd62hrav57plaqvj61c"]::after,
+.typebot-buttons-input [data-itemid="ka3fgkuv2kjqoe68qspz0e0p"]::after,
+.typebot-buttons-input [data-itemid="quwlp72ey51deyyisqyx4vex"]::after,
+.typebot-buttons-input [data-itemid="ryj9u35auhwe46ssri3kvhnf"]::after,
+.typebot-buttons-input [data-itemid="wx5j3wjmidxq2lljukfltcyd"]::after,
+.typebot-buttons-input [data-itemid="f5x0l2utlo8ev4fbe0vq6xl2"]::after,
+.typebot-buttons-input [data-itemid="zwtaxpacczh61ftwkch9qtyw"]::after,
+.typebot-buttons-input [data-itemid="igxbpt3laowfvgaea35mmep1"]::after,
+.typebot-buttons-input [data-itemid="h6waryvub6g9vwhx128g4rxh"]::after,
+.typebot-buttons-input [data-itemid="zisagniecm62xmvxeoki2vzj"]::after,
+.typebot-buttons-input [data-itemid="gm1imzcz1eppt7ek3misld0r"]::after,
+.typebot-buttons-input [data-itemid="piz1hepvxqp9ridbtul4cgxs"]::after,
+.typebot-buttons-input [data-itemid="eatazeev8duc4ruugrlwky1o"]::after,
+.typebot-buttons-input [data-itemid="rpn5pqgnygwahtmfqahv4mvk"]::after,
+.typebot-buttons-input [data-itemid="dmjfd2izh9b0bkvhibvaaylt"]::after,
+.typebot-buttons-input [data-itemid="qatr10iv8nom0wmmcbohtp37"]::after {
+  content: none;
+}
+
+/* ---------- Valoración: estrellas en naranja del logo ---------- */
+.rating-icon-container svg {
+  stroke: var(--px-orange);
+}
+.rating-icon-container.selected svg {
+  fill: var(--px-orange);
+}
+
+/* ---------- Campo de texto y botón de enviar ---------- */
+.typebot-input-form .typebot-button {
+  background: linear-gradient(135deg, var(--cuecca-navy-2), var(--cuecca-navy));
+  color: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+  filter: none;
+}
+.typebot-input-form .typebot-button:hover {
+  filter: brightness(1.1);
+}
+.typebot-input:focus-within {
+  border-color: rgba(30, 99, 198, 0.55);
+  box-shadow: 0 0 0 4px rgba(30, 99, 198, 0.12), 0 6px 20px rgba(29, 39, 56, 0.08);
+}
+
+/* ---------- Avatares ---------- */
+.typebot-avatar-container span,
+.guest-container > span {
+  font-size: 26px;
+  line-height: 1;
+}
+.typebot-avatar-container figure,
+.guest-container figure {
+  background: var(--cuecca-surface);
+  box-shadow: 0 0 0 2px var(--cuecca-surface), 0 3px 10px rgba(29, 39, 56, 0.14);
+}
+
+/* ---------- Accesibilidad ---------- */
+.typebot-button:focus-visible,
+.typebot-input:focus-visible {
+  outline: 3px solid var(--cuecca-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 480px) {
+  .typebot-host-bubble,
+  .typebot-guest-bubble {
+    font-size: 0.9rem;
+  }
+  .typebot-buttons-input > [data-slot="list"] {
+    width: 100%;
+  }
+}

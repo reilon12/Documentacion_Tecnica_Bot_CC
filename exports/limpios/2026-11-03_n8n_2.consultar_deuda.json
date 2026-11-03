@@ -1,0 +1,845 @@
+{
+  "name": "2.consultar_deuda",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    d.ID,\n    ue.Codigo AS Usuario,\n    d.NroSocio,\n    ue.Domicilio,\n    d.Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar\nFROM DEUDA d \nINNER JOIN USUENER ue \n    ON ue.Socio = d.NroSocio \n   AND ue.Codigo = d.Usuario \nWHERE \n    d.NroSocio = '{{ $json.socio }}' \n    AND UPPER(TRIM(ue.Domicilio)) = UPPER(TRIM('{{ $json.domicilio_limpio }}')) \n    AND d.Total <> d.Imputado \n    AND d.Servicio = 'Energia'\nORDER BY d.Anio DESC, d.Mes DESC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        -256
+      ],
+      "id": "3a861225-bf5e-436d-85ea-963fb4fb3552",
+      "name": "Deuda_Servicio Energia",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    d.ID,\n    ua.Codigo,\n    d.NroSocio,\n    ua.Domicilio,\n    d.Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar\nFROM DEUDA d \nINNER JOIN USUAGUA ua \n    ON ua.Socio = d.NroSocio \n   AND ua.Codigo = d.Usuario \nWHERE \n    d.NroSocio = '{{ $json.socio }}'\n    AND UPPER(TRIM(ua.Domicilio)) = UPPER(TRIM('{{ $json.domicilio_limpio }}'))\n    AND d.Total <> d.Imputado \n    AND d.Servicio = 'Agua'\nORDER BY d.Anio DESC, d.Mes DESC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        -96
+      ],
+      "id": "3e13dd06-7072-4c6e-b436-6624b88e841b",
+      "name": "Deuda_Servicio_Agua",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    d.ID,\n    ui.Codigo,\n    d.NroSocio,\n    ui.Domicilio,\n    d.Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar\nFROM DEUDA d \nINNER JOIN USUINTE ui \n    ON ui.Socio = d.NroSocio \n   AND ui.Codigo = d.Usuario \nWHERE \n    d.NroSocio = '{{ $json.socio }}' \n    AND UPPER(TRIM(ui.Domicilio)) = UPPER(TRIM('{{ $json.domicilio_limpio }}'))\n    AND d.Total <> d.Imputado \n    AND d.Servicio = 'Internet'\nORDER BY d.Anio DESC, d.Mes DESC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        64
+      ],
+      "id": "b3758f84-1908-4cff-8d77-48ebb805046b",
+      "name": "Deuda_Servicio_Internet",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "deuda_servicio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -640,
+        64
+      ],
+      "id": "8326804a-9356-4c6e-9978-603c5cbec24a",
+      "name": "Webhook_Deuda",
+      "webhookId": "26cceaec-909b-4a13-98bf-d21f8d878a87"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1072,
+        64
+      ],
+      "id": "8bf78e6c-83d8-4b23-8984-b44324ef0e68",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Consultar Deuda de Usuario - Por Suministros\n### Se realiza una busqueda en base al servicio, se conecta al MERGE, el cual unificara los datos para que el Code_Deuda_Servicios sea capaz de encapsular las consultas en un mismo JSON y asi recibirlo el TypeBot.",
+        "height": 976,
+        "width": 2032,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -400
+      ],
+      "id": "b7a7fe00-8d8a-44a8-ae40-d6dea7fc79da",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "function procesarDeudasServicio(nodeName) {\n  try {\n    const node = $(nodeName);\n    if (!node || !node.all) return null;\n\n    const items = node.all().map(item => item.json).filter(j => j && (j.MontoaPagar != null || j.SubtotalItem != null));\n    if (items.length === 0) return null;\n\n    const hoy = new Date();\n    let totalMonto = 0;\n    const listaTarjetas = [];\n\n    items.forEach(item => {\n      // Tomamos MontoaPagar si existe, o SubtotalItem como alternativa\n      const monto = parseFloat(item.MontoaPagar || item.SubtotalItem) || 0;\n      totalMonto += monto;\n\n      // Código de usuario y domicilio\n      const codigoUsuario = item.Codigo || item.Usuario || item.codigo || \"S/D\";\n      const domicilio = item.Domicilio ? item.Domicilio.trim() : \"\";\n      const itemFacturado = item.ItemFacturado ? \" - \" + item.ItemFacturado : \"\";\n\n      // Sepelio incluido en la factura de otro servicio (H-15)\n      const perteneceA = item.ServicioComprobante\n        ? \"\\n🔗 Pertenece a la factura de \" + item.ServicioComprobante + \" (ya incluido en su importe)\"\n        : \"\";\n\n      // Evaluar si está vencido\n      let estadoVencimiento = \"🔴 VENCIDO\";\n      if (item.FechaVencimientoFormateada) {\n        const partes = item.FechaVencimientoFormateada.split('/');\n        if (partes.length === 3) {\n          const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);\n          if (fechaVenc >= hoy) {\n            estadoVencimiento = \"🟢 A VENCER\";\n          }\n        }\n      }\n\n      // Formato del monto\n      const montoFormateado = monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n\n      // Armado de tarjeta\n      let tarjeta = \"\";\n      if (domicilio) {\n        tarjeta += \"📍 \" + domicilio + \"\\n\";\n      }\n      tarjeta += \"👤 Usuario: \" + codigoUsuario + \"\\n\" +\n                 \"📅 Periodo: Mes \" + item.Mes + \"/\" + item.Anio + itemFacturado + perteneceA + \"\\n\" +\n                 \"💵 Importe: $\" + montoFormateado + \"\\n\" +\n                 \"📆 Vencimiento: \" + (item.FechaVencimientoFormateada || \"A confirmar\") + \" (\" + estadoVencimiento + \")\";\n      \n      listaTarjetas.push(tarjeta);\n    });\n\n    return {\n      montoTotal: Math.round(totalMonto * 100) / 100,\n      detalleFormateado: listaTarjetas.join(\"\\n─────────────────\\n\"),\n      cantidadFacturas: items.length\n    };\n  } catch (e) {\n    return null;\n  }\n}\n\n// Ejecución por nodo\nconst energia = procesarDeudasServicio(\"Deuda_Servicio Energia\");\nconst agua = procesarDeudasServicio(\"Deuda_Servicio_Agua\");\nconst internet = procesarDeudasServicio(\"Deuda_Servicio_Internet\");\nconst sepelio = procesarDeudasServicio(\"Deuda_Servicio_Sepelio\");\nconst municipalidad = procesarDeudasServicio(\"Deuda_Servicio_Municipalidad\");\n\n// Retorno consolidado para Typebot\nreturn [{\n  json: {\n    tiene_deuda: energia !== null || agua !== null || internet !== null || sepelio !== null || municipalidad !== null,\n\n    // Energía\n    tiene_energia: energia !== null,\n    monto_energia: energia ? energia.montoTotal : null,\n    detalle_energia: energia ? energia.detalleFormateado : null,\n\n    // Agua\n    tiene_agua: agua !== null,\n    monto_agua: agua ? agua.montoTotal : null,\n    detalle_agua: agua ? agua.detalleFormateado : null,\n\n    // Internet\n    tiene_internet: internet !== null,\n    monto_internet: internet ? internet.montoTotal : null,\n    detalle_internet: internet ? internet.detalleFormateado : null,\n\n    // Sepelio 🕊️ (Mapeado con soporte para SubtotalItem y descripción de ítem)\n    tiene_sepelio: sepelio !== null,\n    monto_sepelio: sepelio ? sepelio.montoTotal : null,\n    detalle_sepelio: sepelio ? sepelio.detalleFormateado : null,\n\n    // Municipalidad 🏛️\n    tiene_municipalidad: municipalidad !== null,\n    monto_municipalidad: municipalidad ? municipalidad.montoTotal : null,\n    detalle_municipalidad: municipalidad ?  municipalidad.detalleFormateado : null\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        64
+      ],
+      "id": "2587e5f4-4878-4add-a03b-00591f3cdd9a",
+      "name": "Code_Deuda_Servicios"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        512,
+        16
+      ],
+      "id": "95ce856d-5cdb-44c4-9551-d3863aee0ffa",
+      "name": "Merge_deudas"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "desglose_deuda",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2416,
+        -128
+      ],
+      "id": "8cff95e4-58f3-4391-a262-a60724268579",
+      "name": "Webhook_desglose_deuda",
+      "webhookId": "af5c8997-8395-48c1-b508-212c44beb0a1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## 2.4 Desglose de Deuda (REMOVIDO)\n### Muestra el GRAVADO,IVA Y NO GRAVADO en los detalles de la deuda.",
+        "height": 1536,
+        "width": 432,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        -400
+      ],
+      "id": "ceb5ae6d-ba3b-4169-a7ef-dcdfc11ec18c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH UsuarioSeleccionado AS (\n    SELECT TOP 1 Codigo\n    FROM (\n        SELECT Socio, Codigo, Domicilio, 'Energia' AS Servicio FROM USUENER\n        UNION ALL\n        SELECT Socio, Codigo, Domicilio, 'Agua' AS Servicio FROM USUAGUA\n        UNION ALL\n        SELECT Socio, Codigo, Domicilio, 'Internet' AS Servicio FROM USUINTE\n    ) u\n    WHERE u.Socio = '{{ $json.body.socio }}'\n      AND UPPER(TRIM(u.Domicilio)) = UPPER(TRIM('{{ $json.body.usuario_id }}'))\n      AND u.Servicio = CASE \n                          WHEN '{{ $json.body.servicio }}' IN ('1', 'Energia', 'Energía') THEN 'Energia'\n                          WHEN '{{ $json.body.servicio }}' IN ('2', 'Agua') THEN 'Agua'\n                          WHEN '{{ $json.body.servicio }}' IN ('3', 'Internet') THEN 'Internet'\n                          ELSE '{{ $json.body.servicio }}'\n                       END\n)\nSELECT \n    d.NroSocio,\n    SUM(dd.Gravado) AS TotalGravado,\n    SUM(dd.NoGravado + dd.Exento) AS TotalNoGravado,\n    SUM(dd.IVA + dd.IVANo) AS TotalIVA,\n    SUM(dd.Gravado + dd.IVA + dd.IVANo + dd.Exento + dd.NoGravado) AS SubtotalGeneral\nFROM DEUDA d\nINNER JOIN DEUDA_DET dd ON d.ID = dd.ID\nWHERE d.NroSocio = '{{ $json.body.socio }}'\n  AND d.Usuario = (SELECT Codigo FROM UsuarioSeleccionado)\n  AND d.Servicio = CASE \n                      WHEN '{{ $json.body.servicio }}' IN ('1', 'Energia', 'Energía') THEN 'Energia'\n                      WHEN '{{ $json.body.servicio }}' IN ('2', 'Agua') THEN 'Agua'\n                      WHEN '{{ $json.body.servicio }}' IN ('3', 'Internet') THEN 'Internet'\n                      ELSE '{{ $json.body.servicio }}'\n                   END\n  AND d.Mes = CASE \n                  WHEN '{{$json.body.servicio }}' IN ('1', 'Energia', 'Energía') THEN '{{$json.body.periodo_ener }}'\n                  WHEN '{{ $json.body.servicio }}' IN ('2', 'Agua') THEN '{{$json.body.periodo_agua }}'\n                  WHEN '{{$json.body.servicio }}' IN ('3', 'Internet') THEN '{{$json.body.periodo_int }}'\n                  ELSE '{{ $json.body.periodo_ener }}'\n               END\n  AND d.Total <> d.Imputado \n  AND d.Anio = 2026\nGROUP BY d.NroSocio;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        2432,
+        192
+      ],
+      "id": "2d712f8f-9809-41b3-8a58-ff411db586f9",
+      "name": "SQL - Servicio_Seleccionado",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0 || !items[0].json.SubtotalGeneral) {\n  return [{\n    json: {\n      tiene_deuda: false,\n      gravado: \"$ 0,00\",\n      no_gravado: \"$ 0,00\",\n      iva: \"$ 0,00\",\n      total: \"$ 0,00\"\n    }\n  }];\n}\n\nconst data = items[0].json;\nconst fmt = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(Number(v) || 0);\n\nreturn [{\n  json: {\n    tiene_deuda: true,\n    gravado: fmt(data.TotalGravado),\n    no_gravado: fmt(data.TotalNoGravado),\n    iva: fmt(data.TotalIVA),\n    total: fmt(data.SubtotalGeneral)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        512
+      ],
+      "id": "b5b5f896-6c91-421f-bf22-1b49d67d6019",
+      "name": "Code in JavaScript",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2464,
+        864
+      ],
+      "id": "1255ed75-7b76-4e30-8e4b-7bd2f4b510ef",
+      "name": "respuesta_desglose_Deuda",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generar_link_factura",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        -128
+      ],
+      "id": "d29346cc-367d-4572-89ee-8ce059718dbc",
+      "name": "webhook_factura_link",
+      "webhookId": "f3faa46b-c565-4e31-a22b-659bb265cfc3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1472,
+        864
+      ],
+      "id": "306355b8-8d58-4377-bac3-023532d3c4b3",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "content": "## 2.1 Facturas Cuecca \n## Redirección a pagina y vinculación de datos.\n### Se validan los datos ingresados desde un principio, se redirige al link https://comprobantes.cuecca.com.ar/, donde se mapearan los datos, para que el usuario al ingresar al link, solo tenga que presionar \"Continuar\".",
+        "height": 1536,
+        "width": 448,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -400
+      ],
+      "id": "5978341b-6348-4aaa-a579-a51cfd3176df",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT TOP 1 \n    Socio,\n    COALESCE(\n        NULLIF(TRIM(CAST(CUIT AS VARCHAR(20))), ''), \n        TRIM(CAST(DNI AS VARCHAR(20)))\n    ) AS Identificador,\n    CASE \n        WHEN CUIT IS NOT NULL AND TRIM(CAST(CUIT AS VARCHAR(20))) <> '' THEN 'cuit'\n        ELSE 'dni'\n    END AS TipoDoc\nFROM (\n    SELECT Socio, CUIT, DNI FROM USUENER WHERE Socio = '{{ $json.body.cuenta }}' AND (DNI = '{{ $json.body.dni }}' OR CUIT = '{{ $json.body.dni }}') AND Activo = 1\n    UNION ALL\n    SELECT Socio, CUIT, DNI FROM USUAGUA WHERE Socio = '{{ $json.body.cuenta }}' AND (DNI = '{{ $json.body.dni }}' OR CUIT = '{{ $json.body.dni }}') AND Activo = 1\n    UNION ALL\n    SELECT Socio, CUIT, DNI FROM USUINTE WHERE Socio = '{{ $json.body.cuenta }}' AND (DNI = '{{ $json.body.dni }}' OR CUIT = '{{ $json.body.dni }}') AND Activo = 1\n) AS TablaIdentificacion;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        192
+      ],
+      "id": "fdcaafc6-a541-405d-9821-9784e652731f",
+      "name": "SQL_validacion_socio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Leemos los datos enviados por el webhook\nconst webhookData = $('Validar_Entrada_factura').first().json.body;\nconst cuenta = webhookData.cuenta || '';\nconst dniIngresado = webhookData.dni || '';\n\n// Obtenemos los valores procesados por la query SQL\nconst itemSql = $input.first()?.json;\nconst identificador = itemSql?.Identificador || dniIngresado;\nconst tipoDoc = itemSql?.TipoDoc || 'dni';\n\n// Construimos la URL apuntando directamente a list.php\nlet urlFinal = `https://comprobantes.cuecca.com.ar/list.php?cuenta=${encodeURIComponent(cuenta)}`;\n\nif (tipoDoc === 'cuit') {\n  urlFinal += `&cuit=${encodeURIComponent(identificador)}`;\n} else {\n  urlFinal += `&dni=${encodeURIComponent(identificador)}`;\n}\n\nreturn [{\n  json: {\n    url_factura: urlFinal\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        512
+      ],
+      "id": "7f883334-7e69-4454-9697-b036124b12ed",
+      "name": "Mapeo_cuenta_cuit_dni"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// 1. Obtenemos el texto bruto del body\nlet rawBody = '';\nif (inputData.query && inputData.query.body) {\n  rawBody = typeof inputData.query.body === 'string' ? inputData.query.body : JSON.stringify(inputData.query.body);\n} else if (inputData.body) {\n  rawBody = typeof inputData.body === 'string' ? inputData.body : JSON.stringify(inputData.body);\n}\n\nlet socio = '';\nlet codigo = '';\nlet domicilio = '';\n\n// 2. Intentamos parsear como JSON normal\ntry {\n  const parsed = JSON.parse(rawBody);\n  socio = parsed.socio || '';\n  codigo = parsed.codigo || parsed.user_id || '';\n  domicilio = parsed.domicilio || '';\n} catch (e) {\n  // 3. Si el JSON viene mal construido/sin comas, extraemos los datos con Expresiones Regulares (Regex)\n  const socioMatch = rawBody.match(/\"socio\"\\s*:\\s*\"([^\"]+)\"/);\n  const codigoMatch = rawBody.match(/\"codigo\"\\s*:\\s*\"([^\"]+)\"/) || rawBody.match(/\"user_id\"\\s*:\\s*\"([^\"]+)\"/);\n  const domMatch = rawBody.match(/\"domicilio\"\\s*:\\s*\"([^\"]+)\"/);\n\n  if (socioMatch) socio = socioMatch[1];\n  if (codigoMatch) codigo = codigoMatch[1];\n  if (domMatch) domicilio = domMatch[1];\n}\n\n// 4. Limpiamos los paréntesis del domicilio\nif (typeof domicilio === 'string' && domicilio.includes('(')) {\n  domicilio = domicilio.split('(')[0];\n}\n\n// 5. Validación (H-01)\nconst socioLimpio = String(socio).trim().replace(/[\\s.\\-]/g, '');\nif (!/^\\d{1,15}$/.test(socioLimpio)) {\n  throw new Error('Entrada inválida en el campo \"socio\"');\n}\nlet domicilioSeguro = String(domicilio).trim().toUpperCase().slice(0, 200);\ndomicilioSeguro = domicilioSeguro.replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    socio: socioLimpio,\n    codigo: String(codigo).trim(),\n    domicilio_limpio: domicilioSeguro\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        64
+      ],
+      "id": "35eebdcc-cedc-47a5-9bee-14002e67b5a6",
+      "name": "Limpiar_Domicilio"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Sepelio' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nWHERE d.NroSocio = '{{ $json.socio }}'\n  AND ISNULL(d.Servicio, '') NOT IN ('Energia', 'Agua', 'Internet')\n  AND d.Prefijo <> 99\n  AND EXISTS (SELECT 1 FROM DEUDA_DET dd WHERE dd.ID = d.ID AND dd.Item = 101)\n  AND d.Total <> d.Imputado\nORDER BY d.Anio ASC, d.Mes ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        224
+      ],
+      "id": "6152608a-8b9a-473f-bac0-b08ba14e6742",
+      "name": "Deuda_Servicio_Sepelio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n\t\t d.NroSocio,\n\t\t d.Usuario,\n\t\t d.Domicilio,\n\t\t d.Mes,\n\t\t d.Anio,\n\t\t CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n\t\t d.Total,\n\t\t d.Imputado,\n\t\t (d.Total - d.Imputado) AS MontoaPagar\n\nFROM DEUDA d \n\nWHERE \n     d.NroSocio = '{{ $json.socio }}'\n     AND d.Prefijo = 99\n\t AND d.Total <> d.Imputado\nORDER BY d.Anio ASC, d.Mes ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        384
+      ],
+      "id": "bd5483fc-1bdd-46cc-848a-c225d0fe1fe9",
+      "name": "Deuda_Servicio_Municipalidad",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "## 2.2 Consumo de Energia y Agua\n### Muestra el consumo de Energia y Agua de los ultimos 3 meses, para que el usuario tenga un panorama completo de los datos.",
+        "height": 1552,
+        "width": 464,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1792,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "59ef8658-5f4f-401a-a81e-739c4dd68d22",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consumo_ener_agua",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        -112
+      ],
+      "id": "aa13685c-8049-4a57-ae2e-f8b395a1c755",
+      "name": "Webhook_consumos",
+      "webhookId": "83b6eef9-4e2e-4252-821e-c36bfb452f92"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    ue.Nombre,\n    ue.Socio,\n    ue.Codigo,\n    ue.Domicilio,\n    ue.Medidor,\n    'Energia' AS Servicio,\n    est.Mes,\n    est.Anio,\n    est.Consumo\nFROM USUENER ue \nINNER JOIN ESTADOS est ON ue.Codigo = est.Usuario\nWHERE ue.Socio = '{{ $json.body.Socio }}'\n  AND est.Servicio = 'Energia'\n  AND (est.Anio * 100 + est.Mes) BETWEEN (YEAR(DATEADD(MONTH, -3, GETDATE())) * 100 + MONTH(DATEADD(MONTH, -3, GETDATE())))\n                                     AND (YEAR(DATEADD(MONTH, -1, GETDATE())) * 100 + MONTH(DATEADD(MONTH, -1, GETDATE())))\n\nUNION ALL\n\nSELECT \n    ua.Nombre,\n    ua.Socio,\n    ua.Codigo,\n    ua.Domicilio,\n    ua.Medidor,\n    'Agua' AS Servicio,\n    est.Mes,\n    est.Anio,\n    est.Consumo\nFROM USUAGUA ua \nINNER JOIN ESTADOS est ON ua.Codigo = est.Usuario\nWHERE ua.Socio = '{{ $json.body.Socio }}'\n  AND est.Servicio = 'Agua'\n    AND (est.Anio * 100 + est.Mes) BETWEEN (YEAR(DATEADD(MONTH, -3, GETDATE())) * 100 + MONTH(DATEADD(MONTH, -3, GETDATE())))                          AND (YEAR(DATEADD(MONTH, -1, GETDATE())) * 100 + MONTH(DATEADD(MONTH, -1, GETDATE())))\n\nORDER BY Servicio, Domicilio, Anio DESC, Mes DESC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1968,
+        208
+      ],
+      "id": "aca0ea8b-f66a-4fcb-a351-d20818df3fa4",
+      "name": "Consulta_consumos_socio",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(item => item.json).filter(j => j && j.Nombre);\n\nlet resultado = {\n  encontrado: false,\n  nombre: \"\",\n  detalle_energia: \"No se registran consumos recientes de Energía.\",\n  detalle_agua: \"No se registran consumos recientes de Agua.\"\n};\n\nif (items.length > 0) {\n  resultado.encontrado = true;\n  resultado.nombre = items[0].Nombre;\n\n  // Estructuras para agrupar por suministro único (combinando Domicilio y Medidor)\n  const suministrosEnergia = {};\n  const suministrosAgua = {};\n\n  items.forEach(item => {\n    const servicio = (item.Servicio || '').toLowerCase();\n    const domicilio = item.Domicilio ? item.Domicilio.trim() : \"S/D\";\n    const medidor = item.Medidor || \"S/N\";\n    const consumo = item.Consumo ?? 0;\n    \n    // Clave única para separar cada propiedad/medidor del socio\n    const key = `${domicilio}_${medidor}`;\n\n    if (servicio === 'energia') {\n      const textoPeriodo = `📅 Mes ${item.Mes}/${item.Anio}: *${consumo} kWh*`;\n      if (!suministrosEnergia[key]) {\n        suministrosEnergia[key] = { domicilio, medidor, registros: [] };\n      }\n      suministrosEnergia[key].registros.push(textoPeriodo);\n    } else if (servicio === 'agua') {\n      const textoPeriodo = `📅 Mes ${item.Mes}/${item.Anio}: *${consumo} m³*`;\n      if (!suministrosAgua[key]) {\n        suministrosAgua[key] = { domicilio, medidor, registros: [] };\n      }\n      suministrosAgua[key].registros.push(textoPeriodo);\n    }\n  });\n\n  // Formatear bloques de Energía diferenciando domicilios\n  const arrayEnergia = Object.values(suministrosEnergia);\n  if (arrayEnergia.length > 0) {\n    let textosEnergia = arrayEnergia.map(s => {\n      return `📍 *${s.domicilio}*\\n🔢 Medidor: ${s.medidor}\\n` + s.registros.join(\"\\n\");\n    });\n    resultado.detalle_energia = \"💡 *CONSUMOS DE ENERGÍA*\\n\\n\" + textosEnergia.join(\"\\n\\n─────────────────\\n\\n\");\n  }\n\n  // Formatear bloques de Agua diferenciando domicilios\n  const arrayAgua = Object.values(suministrosAgua);\n  if (arrayAgua.length > 0) {\n    let textosAgua = arrayAgua.map(s => {\n      return `📍 *${s.domicilio}*\\n🔢 Medidor: ${s.medidor}\\n` + s.registros.join(\"\\n\");\n    });\n    resultado.detalle_agua = \"💧 *CONSUMOS DE AGUA*\\n\\n\" + textosAgua.join(\"\\n\\n─────────────────\\n\\n\");\n  }\n}\n\nreturn [{ json: resultado }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        512
+      ],
+      "id": "40bf9edb-a994-4ade-985a-131cbf9712c2",
+      "name": "Mapeo_consumos"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2000,
+        832
+      ],
+      "id": "202f9f4c-00cd-44ec-87cb-61cd7e8a1f75",
+      "name": "Devolucion_consumos"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "deuda_total",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -592,
+        832
+      ],
+      "id": "910a21e5-4151-4c84-b6f7-427830606a9a",
+      "name": "Webhook_Deuda_Total",
+      "webhookId": "76fc6b36-2134-417f-bd1a-7acfef1d6145"
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  const items = $input.all().map(item => item.json).filter(j => j && j.MontoaPagar != null);\n  \n  // Sin deuda: monto en null para que Typebot vaya a \"No posee deudas\" (H-16)\n  if (items.length === 0) {\n    return [{ json: { tiene_deuda: false, monto_total_general: 0, monto_total_formateado: null, detalle_por_periodo: null } }];\n  }\n\n  const hoy = new Date();\n  \n  const serviciosMap = {\n    \"Energia\": { items: [], emoji: \"💡\", titulo: \"ENERGÍA\" },\n    \"Agua\": { items: [], emoji: \"💧\", titulo: \"AGUA\" },\n    \"Internet\": { items: [], emoji: \"🌐\", titulo: \"INTERNET\" },\n    \"Sepelio\": { items: [], emoji: \"🕊️\", titulo: \"SECTOR SEPELIO\" },\n    \"Municipalidad\": { items: [], emoji: \"🏛️\", titulo: \"TASA MUNICIPAL\" }\n  };\n\n  let totalGeneral = 0;\n  const periodosMap = {};\n\n  items.forEach(item => {\n    const monto = parseFloat(item.MontoaPagar) || 0;\n    totalGeneral += monto;\n\n    const servicioNombre = item.Servicio;\n    if (!serviciosMap[servicioNombre]) return;\n\n    const codigoUsuario = item.Usuario || \"S/D\";\n    const domicilio = item.Domicilio ? item.Domicilio.trim() : \"\";\n    const itemFacturado = item.ItemFacturado ? \" - \" + item.ItemFacturado : \"\";\n    const periodoKey = `${item.Mes}/${item.Anio}`;\n\n    if (!periodosMap[periodoKey]) {\n      periodosMap[periodoKey] = {\n        orden: Number(item.Anio) * 100 + Number(item.Mes),   // para ordenar cronológicamente\n        montoTotalPeriodo: 0,\n        conceptos: []\n      };\n    }\n    periodosMap[periodoKey].montoTotalPeriodo += monto;\n    periodosMap[periodoKey].conceptos.push(`${serviciosMap[servicioNombre].emoji} ${servicioNombre} (${domicilio || 'S/D'}) - Mes ${periodoKey}: $${monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);\n\n    let estadoVencimiento = \"🔴 VENCIDO\";\n    if (item.FechaVencimientoFormateada) {\n      const partes = item.FechaVencimientoFormateada.split('/');\n      if (partes.length === 3) {\n        const fechaVenc = new Date(partes[2], partes[1] - 1, partes[0]);\n        if (fechaVenc >= hoy) {\n          estadoVencimiento = \"🟢 A VENCER\";\n        }\n      }\n    }\n\n    const montoFormateado = monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n\n    let tarjeta = \"\";\n    if (domicilio) {\n      tarjeta += \"📍 \" + domicilio + \" | \";\n    }\n    tarjeta += \"Usuario: \" + codigoUsuario + \" | Período: \" + periodoKey + itemFacturado + \" | Importe: $\" + montoFormateado + \" (\" + estadoVencimiento + \")\";\n\n    serviciosMap[servicioNombre].items.push({\n      monto: monto,\n      tarjeta: tarjeta\n    });\n  });\n\n  function procesarBloqueServicio(servData) {\n    if (servData.items.length === 0) return { montoTotal: 0, detalleFormateado: null };\n    \n    const montoTotalServicio = servData.items.reduce((acc, curr) => acc + curr.monto, 0);\n    const listaTarjetas = servData.items.map(i => i.tarjeta);\n    const detalleFormateado = servData.emoji + \" *\" + servData.titulo + \"*\\n\" + listaTarjetas.join(\"\\n\");\n\n    return {\n      montoTotal: Math.round(montoTotalServicio * 100) / 100,\n      detalleFormateado: detalleFormateado\n    };\n  }\n\n  const listaPeriodosTexto = [];\n  Object.keys(periodosMap)\n    .sort((a, b) => periodosMap[a].orden - periodosMap[b].orden)   // cronológico, no alfabético\n    .forEach(periodo => {\n      const pData = periodosMap[periodo];\n      const subtotalFormateado = pData.montoTotalPeriodo.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n      listaPeriodosTexto.push(`📅 *Período ${periodo}*: $${subtotalFormateado}\\n` + pData.conceptos.join(\"\\n\"));\n    });\n\n  const detallePorPeriodoFormateado = listaPeriodosTexto.join(\"\\n\\n─────────────────\\n\\n\");\n\n  const resEnergia = procesarBloqueServicio(serviciosMap[\"Energia\"]);\n  const resAgua = procesarBloqueServicio(serviciosMap[\"Agua\"]);\n  const resInternet = procesarBloqueServicio(serviciosMap[\"Internet\"]);\n  const resSepelio = procesarBloqueServicio(serviciosMap[\"Sepelio\"]);\n  const resMunicipalidad = procesarBloqueServicio(serviciosMap[\"Municipalidad\"]);\n\n  const deudaTotalGeneralRedondeada = Math.round(totalGeneral * 100) / 100;\n  const deudaTotalFormateada = deudaTotalGeneralRedondeada.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n\n  return [{\n    json: {\n      tiene_deuda: items.length > 0,\n      monto_total_general: deudaTotalGeneralRedondeada,\n      monto_total_formateado: \"$\" + deudaTotalFormateada,\n      detalle_por_periodo: detallePorPeriodoFormateado,\n\n      tiene_energia: resEnergia.detalleFormateado !== null,\n      monto_energia: resEnergia.montoTotal,\n      detalle_energia: resEnergia.detalleFormateado,\n\n      tiene_agua: resAgua.detalleFormateado !== null,\n      monto_agua: resAgua.montoTotal,\n      detalle_agua: resAgua.detalleFormateado,\n\n      tiene_internet: resInternet.detalleFormateado !== null,\n      monto_internet: resInternet.montoTotal,\n      detalle_internet: resInternet.detalleFormateado,\n\n      tiene_sepelio: resSepelio.detalleFormateado !== null,\n      monto_sepelio: resSepelio.montoTotal,\n      detalle_sepelio: resSepelio.detalleFormateado,\n\n      tiene_municipalidad: resMunicipalidad.detalleFormateado !== null,\n      monto_municipalidad: resMunicipalidad.montoTotal,\n      detalle_municipalidad: resMunicipalidad.detalleFormateado\n    }\n  }];\n\n} catch (e) {\n  return [{\n    json: {\n      tiene_deuda: false,\n      monto_total_general: 0,\n      monto_total_formateado: null,\n      detalle_por_periodo: null\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        832
+      ],
+      "id": "4897cc55-2ed4-443f-9876-739c4465c3c2",
+      "name": "Code - Mapeo_Deuda_Total"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Energia' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nINNER JOIN USUENER ue ON ue.Socio = d.NroSocio AND ue.Codigo = d.Usuario \nWHERE d.NroSocio = '{{ $json.socio }}' \n  AND d.Total <> d.Imputado AND d.Servicio = 'Energia'\n\nUNION ALL\n\nSELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Agua' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nINNER JOIN USUAGUA ua ON ua.Socio = d.NroSocio AND ua.Codigo = d.Usuario \nWHERE d.NroSocio = '{{ $json.socio }}' \n  AND d.Total <> d.Imputado AND d.Servicio = 'Agua'\n\nUNION ALL\n\nSELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Internet' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nINNER JOIN USUINTE ui ON ui.Socio = d.NroSocio AND ui.Codigo = d.Usuario \nWHERE d.NroSocio = '{{ $json.socio }}' \n  AND d.Total <> d.Imputado AND d.Servicio = 'Internet'\n\nUNION ALL\n\n-- Sepelio aparte (comprobante propio, p. ej. prefijo 34).\n-- El sepelio que viene dentro de la factura de agua/energía ya está sumado en ese servicio.\nSELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Sepelio' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nWHERE d.NroSocio = '{{ $json.socio }}'\n  AND ISNULL(d.Servicio, '') NOT IN ('Energia', 'Agua', 'Internet')\n  AND d.Prefijo <> 99\n  AND EXISTS (SELECT 1 FROM DEUDA_DET dd WHERE dd.ID = d.ID AND dd.Item = 101)\n  AND d.Total <> d.Imputado\n\nUNION ALL\n\nSELECT \n    d.ID,\n    d.Usuario,\n    d.NroSocio,\n    d.Domicilio,\n    'Municipalidad' AS Servicio,\n    d.Mes,\n    d.Anio,\n    CONVERT(VARCHAR(10), DATEADD(day, CAST(d.FechaVencimiento AS INT) - 4, CAST('1801-01-01' AS DATE)), 103) AS FechaVencimientoFormateada,\n    (d.Total - d.Imputado) AS MontoaPagar,\n    NULL AS ItemFacturado\nFROM DEUDA d \nWHERE d.NroSocio = '{{ $json.socio }}' \n  AND d.Prefijo = 99 \n  AND d.Total <> d.Imputado\n\nORDER BY Servicio, Anio ASC, Mes ASC;"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        832
+      ],
+      "id": "907f9767-678f-4730-af86-9e8dd83ac806",
+      "name": "DEUDA_TOTAL",
+      "credentials": {
+        "microsoftSql": {
+          "name": "Microsoft SQL SIACCOP LOCAL"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first().json;\n\n// 1. Obtenemos el texto bruto del body\nlet rawBody = '';\nif (inputData.query && inputData.query.body) {\n  rawBody = typeof inputData.query.body === 'string' ? inputData.query.body : JSON.stringify(inputData.query.body);\n} else if (inputData.body) {\n  rawBody = typeof inputData.body === 'string' ? inputData.body : JSON.stringify(inputData.body);\n}\n\nlet socio = '';\nlet codigo = '';\nlet domicilio = '';\n\n// 2. Intentamos parsear como JSON normal\ntry {\n  const parsed = JSON.parse(rawBody);\n  socio = parsed.socio || '';\n  codigo = parsed.codigo || parsed.user_id || '';\n  domicilio = parsed.domicilio || '';\n} catch (e) {\n  // 3. Si el JSON viene mal construido/sin comas, extraemos los datos con Expresiones Regulares (Regex)\n  const socioMatch = rawBody.match(/\"socio\"\\s*:\\s*\"([^\"]+)\"/);\n  const codigoMatch = rawBody.match(/\"codigo\"\\s*:\\s*\"([^\"]+)\"/) || rawBody.match(/\"user_id\"\\s*:\\s*\"([^\"]+)\"/);\n  const domMatch = rawBody.match(/\"domicilio\"\\s*:\\s*\"([^\"]+)\"/);\n\n  if (socioMatch) socio = socioMatch[1];\n  if (codigoMatch) codigo = codigoMatch[1];\n  if (domMatch) domicilio = domMatch[1];\n}\n\n// 4. Limpiamos los paréntesis del domicilio\nif (typeof domicilio === 'string' && domicilio.includes('(')) {\n  domicilio = domicilio.split('(')[0];\n}\n\n// 5. Validación (H-01)\nconst socioLimpio = String(socio).trim().replace(/[\\s.\\-]/g, '');\nif (!/^\\d{1,15}$/.test(socioLimpio)) {\n  throw new Error('Entrada inválida en el campo \"socio\"');\n}\nlet domicilioSeguro = String(domicilio).trim().toUpperCase().slice(0, 200);\ndomicilioSeguro = domicilioSeguro.replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    socio: socioLimpio,\n    codigo: String(codigo).trim(),\n    domicilio_limpio: domicilioSeguro\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        832
+      ],
+      "id": "f27b65bf-b0bf-4655-b0f6-136c93f3d89a",
+      "name": "Limpiar_Domicilio1"
+    },
+    {
+      "parameters": {
+        "content": "## 2.3 Consultar Deuda de Usuarios - Total por Domicilio \n### La idea de este modulo es mostrar las deudas totales por mes, dividiendolo por cada Suministro/Servicio contratado del usuario, \n### en caso de corresponder a otro mes, se separa, pero al final se muestra la deuda sumando tanto la deuda del mes actual, como la anterior",
+        "height": 544,
+        "width": 2032,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "af289d1d-e573-4161-aad6-1976e8c389f9",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        912,
+        832
+      ],
+      "id": "e6a3fc02-add6-4154-86e3-04eec4ff9806",
+      "name": "Respond_Deuda_Total"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"cuenta\", \"dni\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1464,
+        -88
+      ],
+      "id": "f786cc26-5375-4417-bd25-aa3d5798719a",
+      "name": "Validar_Entrada_factura"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validación de entrada (H-01): solo dígitos en números, comillas escapadas en texto\nconst NUMERICOS = [\"Socio\"];\nconst TEXTOS    = [];\nconst MOTOR     = 'mssql';\nconst LARGO_MIN = {};\n\nconst entrada = $input.first().json;\nconst body = { ...(entrada.body || {}) };\n\nfor (const campo of NUMERICOS) {\n  const limpio = String(body[campo] ?? '').trim().replace(/[\\s.\\-()+]/g, '');\n  const minimo = LARGO_MIN[campo] || 1;\n  if (!/^\\d+$/.test(limpio) || limpio.length < minimo || limpio.length > 15) {\n    throw new Error(`Entrada inválida en el campo \"${campo}\"`);\n  }\n  body[campo] = limpio;\n}\n\nfor (const campo of TEXTOS) {\n  let texto = String(body[campo] ?? '').trim().slice(0, 200);\n  if (MOTOR === 'mysql') texto = texto.replace(/\\\\/g, '\\\\\\\\');\n  body[campo] = texto.replace(/'/g, \"''\");\n}\n\nreturn [{ json: { ...entrada, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        -72
+      ],
+      "id": "a67cdadf-3f1b-40d8-886c-7b3d7b626b75",
+      "name": "Validar_Entrada_consumos"
+    }
+  ],
+  "connections": {
+    "Deuda_Servicio Energia": {
+      "main": [
+        [
+          {
+            "node": "Merge_deudas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_Deuda": {
+      "main": [
+        [
+          {
+            "node": "Limpiar_Domicilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deuda_Servicio_Agua": {
+      "main": [
+        [
+          {
+            "node": "Merge_deudas",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Deuda_Servicio_Internet": {
+      "main": [
+        [
+          {
+            "node": "Merge_deudas",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code_Deuda_Servicios": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge_deudas": {
+      "main": [
+        [
+          {
+            "node": "Code_Deuda_Servicios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_desglose_deuda": {
+      "main": [
+        [
+          {
+            "node": "SQL - Servicio_Seleccionado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL - Servicio_Seleccionado": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "respuesta_desglose_Deuda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook_factura_link": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_factura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL_validacion_socio": {
+      "main": [
+        [
+          {
+            "node": "Mapeo_cuenta_cuit_dni",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeo_cuenta_cuit_dni": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar_Domicilio": {
+      "main": [
+        [
+          {
+            "node": "Deuda_Servicio Energia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Deuda_Servicio_Agua",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Deuda_Servicio_Internet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Deuda_Servicio_Sepelio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Deuda_Servicio_Municipalidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deuda_Servicio_Sepelio": {
+      "main": [
+        [
+          {
+            "node": "Merge_deudas",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Deuda_Servicio_Municipalidad": {
+      "main": [
+        [
+          {
+            "node": "Merge_deudas",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Webhook_consumos": {
+      "main": [
+        [
+          {
+            "node": "Validar_Entrada_consumos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta_consumos_socio": {
+      "main": [
+        [
+          {
+            "node": "Mapeo_consumos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeo_consumos": {
+      "main": [
+        [
+          {
+            "node": "Devolucion_consumos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_Deuda_Total": {
+      "main": [
+        [
+          {
+            "node": "Limpiar_Domicilio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Mapeo_Deuda_Total": {
+      "main": [
+        [
+          {
+            "node": "Respond_Deuda_Total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DEUDA_TOTAL": {
+      "main": [
+        [
+          {
+            "node": "Code - Mapeo_Deuda_Total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar_Domicilio1": {
+      "main": [
+        [
+          {
+            "node": "DEUDA_TOTAL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_factura": {
+      "main": [
+        [
+          {
+            "node": "SQL_validacion_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar_Entrada_consumos": {
+      "main": [
+        [
+          {
+            "node": "Consulta_consumos_socio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "errorWorkflow": "F5TPSiSS9JK7v3pz"
+  },
+  "versionId": "1eb5a7e7-d86d-4c00-8e43-e0f944af38f3",
+  "id": "i7aZy1UpvusiikEY",
+  "tags": []
+}
